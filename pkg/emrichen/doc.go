@@ -1,0 +1,5 @@
+package emrichen
+
+func init() {
+
+}

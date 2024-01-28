@@ -2,8 +2,6 @@
 
 all: gifs
 
-VERSION=v0.1.14
-
 TAPES=$(shell ls doc/vhs/*tape)
 gifs: $(TAPES)
 	for i in $(TAPES); do vhs < $$i; done
@@ -35,14 +33,13 @@ tag-patch:
 
 release:
 	git push --tags
-	GOPROXY=proxy.golang.org go list -m github.com/go-go-golems/XXX@$(shell svu current)
+	GOPROXY=proxy.golang.org go list -m github.com/go-go-golems/go-emrichen@$(shell svu current)
 
 bump-glazed:
 	go get github.com/go-go-golems/glazed@latest
-	go get github.com/go-go-golems/clay@latest
 	go mod tidy
 
-XXX_BINARY=$(shell which XXX)
+emrichen_BINARY=$(shell which emrichen)
 install:
-	go build -o ./dist/XXX ./cmd/XXX && \
-		cp ./dist/XXX $(XXX_BINARY)
+	go build -o ./dist/emrichen ./cmd/emrichen && \
+		cp ./dist/emrichen $(emrichen_BINARY)

@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/go-go-golems/go-emrichen/pkg/emrichen"
 	"io"
 	"os"
 
@@ -32,7 +33,7 @@ func main() {
 	decoder := yaml.NewDecoder(f)
 
 	// Initialize the Emrichen interpreter
-	interpreter, err := NewEmrichenInterpreter()
+	interpreter, err := emrichen.NewEmrichenInterpreter()
 	if err != nil {
 		panic(err)
 	}
