@@ -1,6 +1,6 @@
 module github.com/go-go-golems/go-emrichen
 
-go 1.21.5
+go 1.21
 
 require (
 	github.com/pkg/errors v0.9.1
