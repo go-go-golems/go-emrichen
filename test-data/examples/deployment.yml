@@ -1,0 +1,47 @@
+!Defaults
+app_name: myapp
+image: myapp:latest
+replicas: 3
+ports:
+  - port: 80
+    protocol: TCP
+  - port: 443
+    protocol: TCP
+env:
+  - name: ENVIRONMENT
+    value: production
+  - name: DEBUG
+    value: "false"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: !Format "{app_name}-deployment"
+spec:
+  replicas: !Var replicas
+  selector:
+    matchLabels:
+      app: !Var app_name
+  template:
+    metadata:
+      labels:
+        app: !Var app_name
+    spec:
+      containers:
+        - name: !Var app_name
+          image: !Var image
+          ports: !Loop
+            over: !Var ports
+            template:
+              containerPort: !Lookup item.port
+              protocol: !Lookup item.protocol
+          env: !Loop
+            over: !Filter
+              test: !Op
+                a: !Lookup item.name
+                op: ne
+                b: "DEBUG"  # Assuming we want to filter out the DEBUG environment variable in production
+              over: !Var env
+            template:
+              name: !Lookup item.name
+              value: !Lookup item.value
