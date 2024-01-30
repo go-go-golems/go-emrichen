@@ -14,6 +14,10 @@ as well as additional operators.
 
 Additional tags and template operators can be added programmatically.
 
+You can find detailed documentation for each tag in the [doc section](pkg/doc/examples)
+as well as an exhaustive list of examples in [the examples yamls](test-data)
+and [in the go unit tests](pkg/emrichen/).
+
 ## Kubernetes Deployment Example
 
 Below is an example of a Kubernetes deployment template using Emrichen, showcasing advanced features such as conditional
@@ -124,12 +128,8 @@ Emrichen is a powerful template engine designed for generating YAML and JSON con
 | `!Void`        | -                                                                          | Used to remove items from the output.                                                         |
 | `!With`        | `vars`, `template`                                                         | Defines a scope with local variables for a template.                                          |
 
-This reference aims to provide a quick overview of the capabilities and parameters of each tag supported by Emrichen. For detailed examples and advanced usage, refer to the specific documentation for each tag.
-
-
-You can find detailed documentation for each tag in the [doc section](pkg/doc/examples)
-as well as an exhaustive list of examples in [the examples yamls](test-data)
-and [in the go unit tests](pkg/emrichen/).
+This reference aims to provide a quick overview of the capabilities and parameters of each tag supported by Emrichen.
+For detailed examples and advanced usage, refer to the specific documentation for each tag.
 
 
 Below is a structured approach to documenting each Emrichen tag with a short description and an example. This format is designed to be concise yet informative, providing users with a quick understanding of each tag's functionality and usage.
