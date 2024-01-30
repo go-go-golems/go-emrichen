@@ -1,0 +1,22 @@
+!Defaults
+sampleString: "Hello, World!"
+---
+title: "Base64 Encoding Example"
+description: "Encoding a string using Base64"
+encodedString: !Base64,Var sampleString
+---
+title: "SHA1 Hashing Example"
+description: "Hashing a string using SHA1"
+hashedStringSHA1: !SHA1,Var sampleString
+---
+title: "SHA256 Hashing Example"
+description: "Hashing a string using SHA256"
+hashedStringSHA256: !SHA256,Var sampleString
+---
+title: "MD5 Hashing Example"
+description: "Hashing a string using MD5"
+hashedStringMD5: !MD5,Var sampleString
+---
+title: "Combined Hashing and Encoding Example"
+description: "Hashing a string using SHA256 and then encoding it with Base64"
+combinedHashAndEncode: !Base64,SHA256,Var sampleString

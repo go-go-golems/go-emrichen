@@ -112,19 +112,3 @@ Demonstrate nested loops by iterating over a list of dictionaries, each containi
     - "Item: 3"
     - "Item: 4"
 ```
-
-## Tag Composition
-
-When multiple tags are directly in sequence, such as `!Not !Var`, use `,` to compose them, as `!Not,Var`, to maintain valid YAML tags.
-
-```yaml
-- condition: false
-- check: !Not,Var condition
-```
-
-**Output:**
-
-```yaml
-- condition: false
-- check: true
-```

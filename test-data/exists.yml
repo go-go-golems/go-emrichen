@@ -1,0 +1,27 @@
+# Example YAML file demonstrating the use of !Exists
+---
+!Defaults
+foo: bar
+nested:
+  key: value
+list:
+  - item1
+  - item2
+---
+# Check existence of top-level variable 'foo'
+existsFoo: !Exists foo
+
+# Check existence of nested key 'nested.key'
+existsNestedKey: !Exists nested.key
+
+# Check existence of an item in a list
+existsListItem: !Exists list[0]
+
+# Check existence of a non-existent variable 'baz'
+existsBaz: !Exists baz
+
+# Check existence of a non-existent nested key 'nested.missing'
+existsMissingNestedKey: !Exists nested.missing
+
+# Check existence of an index out of bounds in 'list'
+existsOutOfBounds: !Exists list[2]

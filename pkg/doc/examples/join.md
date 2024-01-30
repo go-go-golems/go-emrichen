@@ -53,9 +53,9 @@ joinedWords: !Join { items: [hello, world], separator: ", " }
 joinedWords: "hello, world"
 ```
 
-### Join with Tag Composition
+### Join with Var
 
-Join a list of words using a custom separator and demonstrate tag composition with `!Var`:
+Join a list of words using a custom separator and demonstrate use with `!Var`:
 
 ```yaml
 !Defaults

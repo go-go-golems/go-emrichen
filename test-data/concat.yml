@@ -1,0 +1,10 @@
+!Defaults
+fruits:
+  - apple
+  - banana
+  - orange
+---
+concatenated: !Concat
+  - ["My favorite fruits", "are"]
+  - !Var fruits
+

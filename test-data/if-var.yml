@@ -1,0 +1,12 @@
+!Defaults
+user:
+  isAdmin: true
+  name: John
+---
+message: !If
+  test:
+    isAdmin: !Lookup user.isAdmin
+  then: !Format "You are an admin, {{.user.name}}!"
+  else: !Format "Hello, {{.user.name}}!"
+
+

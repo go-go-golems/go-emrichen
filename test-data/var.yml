@@ -1,0 +1,18 @@
+# Define default values for variables
+!Defaults
+name: John Doe
+age: 30
+hobbies: [Reading, Coding, Hiking]
+address:
+  street: 123 Main St
+  city: Anytown
+  zip: 12345
+
+---
+# Use variables in the document
+person:
+  name: !Var name
+  age: !Var age
+  hobbies: !Var hobbies
+  address: !Var address
+

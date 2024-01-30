@@ -1,0 +1,22 @@
+!Defaults
+urls:
+  - https://example.com/?query=hello world
+  - https://openai.com/?query=gpt-3.5
+query_map:
+  key1: value1
+  key2: value2
+---
+!With
+  vars: 
+    encoded_urls: !Loop
+      over: !Var urls
+      as: url
+      template:
+        url_with_query: !URLEncode
+          url: !Var url
+          query: !Var query_map
+  template: !Loop
+    over: !Var encoded_urls
+    as: url_info
+    template: !Format "Url: {{url_with_query}}"
+

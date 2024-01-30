@@ -1,0 +1,26 @@
+# Example YAML file using !Defaults in Emrichen
+!Defaults
+app_name: myapp
+image_tag: v1.0.0
+replica_count: 2
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: !Var app_name
+spec:
+  replicas: !Var replica_count
+  selector:
+    matchLabels:
+      app: !Var app_name
+  template:
+    metadata:
+      labels:
+        app: !Var app_name
+    spec:
+      containers:
+        - name: !Var app_name
+          image: !Format "{{.app_name}}:{{.image_tag}}"
+          ports:
+            - containerPort: 80

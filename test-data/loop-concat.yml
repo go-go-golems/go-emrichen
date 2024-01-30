@@ -1,0 +1,23 @@
+!Defaults
+items:
+  - item1
+  - item2
+  - item3
+---
+# Use the !Loop tag to iterate over the sequence
+result: 
+  !Loop
+    over: !Var items
+    as: item
+    template:
+      !With
+        # Define a local variable 'message' for each iteration
+        variable:
+          name: message
+          value: 
+            !Concat ["Processing ", !Var item]
+
+        # Use the defined variable 'message'
+        body: 
+          !Var message
+

@@ -1,0 +1,33 @@
+# Example YAML showcasing !All and !Any usage
+
+!Defaults
+# Define some variables to use in our examples
+is_admin: true
+user_roles: [admin, editor, viewer]
+feature_flags: {feature_x: true, feature_y: false}
+
+---
+
+# Using !All to check if all conditions are true
+all_conditions_met: !All
+  - !Var is_admin
+  - !Lookup user_roles[0]  # Assuming the first role should be 'admin'
+  - !Lookup feature_flags.feature_x
+
+# Using !Any to check if at least one condition is true
+any_condition_met: !Any
+  - !Var is_admin
+  - !Lookup feature_flags.feature_y  # This is false, but it's okay if any other is true
+
+# More complex usage combining !All and !Any
+complex_condition: !All
+  - !Any
+    - !Lookup feature_flags.feature_x
+    - !Lookup feature_flags.feature_y
+  - !Var is_admin
+
+# Output should be:
+# all_conditions_met: true (assuming the first role is indeed 'admin' and feature_x is true)
+# any_condition_met: true (because is_admin is true, despite feature_y being false)
+# complex_condition: true (feature_x is true and is_admin is true)
+

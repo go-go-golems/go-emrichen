@@ -1,0 +1,32 @@
+!Defaults
+baseURL: "https://example.com/"
+queryParams: { param1: "value1", param2: "value2" }
+simpleString: "hello world & special=characters"
+complexString: "email=example@example.com&param=value"
+longString: "longstringlongstringlongstringlongstringlongstring..."
+---
+title: "Basic URL Encoding"
+description: "Encoding a simple string for URL usage"
+encodedSimpleString: !URLEncode,Var simpleString
+
+---
+title: "Complex String Encoding"
+description: "Encoding a complex string with email and parameters"
+encodedComplexString: !URLEncode,Var complexString
+
+---
+title: "URL with Query Parameters"
+description: "Combining base URL with query parameters"
+fullURL: !URLEncode
+  url: !Var baseURL
+  query: !Var queryParams
+
+---
+title: "Long String Encoding"
+description: "Encoding a very long string"
+encodedLongString: !URLEncode,Var longString
+
+---
+title: "Invalid Input Handling"
+description: "Demonstrating error handling with invalid input type"
+encodedInvalidInput: !URLEncode [1, 2, 3] # This will cause an error as !URLEncode requires a scalar or mapping node

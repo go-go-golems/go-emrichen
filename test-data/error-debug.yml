@@ -1,0 +1,24 @@
+!Defaults
+debugExampleVar: "Debug Example"
+errorExampleVar: null
+---
+title: "Debug Helper Example"
+description: "Showcasing the use of the Debug helper to print the value of a variable"
+debuggedValue: !Debug,Var debugExampleVar
+---
+title: "Error Helper Example with Conditional"
+description: "Using the Error helper to throw an error if a variable is not set"
+conditionalError: !If
+  test: !IsNone,Var errorExampleVar
+  then: !Error "errorExampleVar must not be null"
+  else: !Var errorExampleVar
+
+---
+title: "Combined Debug and Error Example"
+description: "First, debug a variable's value, then throw an error if another variable is not set"
+steps:
+  - debugStep: !Debug,Var debugExampleVar
+  - errorStep: !If
+      test: !IsNone,Var errorExampleVar
+      then: !Error "errorExampleVar must not be null"
+      else: !Var errorExampleVar

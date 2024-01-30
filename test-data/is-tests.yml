@@ -1,0 +1,36 @@
+!Defaults
+booleanValue: true
+integerValue: 42
+stringValue: "Hello, World!"
+listValue: [1, 2, 3]
+dictValue: {key: "value"}
+noneValue: null
+---
+title: "IsBoolean Example"
+description: "Checking if a value is of boolean type"
+isBoolean: !IsBoolean,Var booleanValue
+---
+title: "IsInteger Example"
+description: "Checking if a value is of integer type"
+isInteger: !IsInteger,Var integerValue
+---
+title: "IsString Example"
+description: "Checking if a value is of string type"
+isString: !IsString,Var stringValue
+---
+title: "IsList Example"
+description: "Checking if a value is a list"
+isList: !IsList,Var listValue
+---
+title: "IsDict Example"
+description: "Checking if a value is a dictionary"
+isDict: !IsDict,Var dictValue
+---
+title: "IsNone Example"
+description: "Checking if a value is None (null)"
+isNone: !IsNone,Var noneValue
+---
+title: "Composite Type Check Example"
+description: "Checking if a value is not a string and then checking if it's an integer"
+isNotStringAndIsInteger: !Not,IsString,Var integerValue
+isInteger: !IsInteger,Var integerValue
