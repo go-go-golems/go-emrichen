@@ -1,0 +1,38 @@
+!Defaults
+base64: test-data/includes/base64_test.bin
+binary: test-data/includes/binary_test.bin
+singleFile: test-data/includes/file_glob_1.yml
+globPattern: "test-data/includes/glob_test_*.yml"
+multiDoc: test-data/includes/multi-doc.yml
+textFile: test-data/includes/text_test.txt
+msg: message
+txt: text
+---
+title: "Include Single File Example"
+description: "Demonstrates including a single YAML file"
+includedContent: !Include,Var singleFile
+
+---
+title: "Include Base64 Encoded File Example"
+description: "Demonstrates including a file as Base64 encoded string"
+base64Content: !IncludeBase64,Var base64
+
+---
+title: "Include Binary File Example"
+description: "Demonstrates including a binary file's content directly"
+binaryContent: !Base64,IncludeBinary,Var binary
+
+---
+title: "Include Glob Pattern Example"
+description: "Demonstrates including multiple files matching a glob pattern"
+globIncludedContent: !IncludeGlob,Var globPattern
+
+---
+title: "Include Multi-Document File Example"
+description: "Demonstrates including a YAML file containing multiple documents"
+multiDocContent: !Include,Var multiDoc
+
+---
+title: "Include Text File Example"
+description: "Demonstrates including a text file's content as a string"
+textContent: !IncludeText,Var textFile

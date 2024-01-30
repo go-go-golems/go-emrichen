@@ -1,0 +1,95 @@
+# Example 1: Basic Boolean Condition
+---
+!Defaults
+condition: true
+---
+title: "Basic Boolean Condition"
+description: "Demonstrates a simple boolean condition with !If"
+result: !If
+  test: !Var condition
+  then: 'Condition is true'
+  else: 'Condition is false'
+
+# Example 2: Nested !If Statements
+---
+!Defaults
+outerCondition: true
+innerCondition: false
+---
+title: "Nested !If Statements"
+description: "Demonstrates nested !If statements"
+result: !If
+  test: !Var outerCondition
+  then: !If
+    test: !Var innerCondition
+    then: 'Inner condition is true'
+    else: 'Inner condition is false'
+  else: 'Outer condition is false'
+
+# Example 3: Variable Substitution in Conditions
+---
+!Defaults
+numericCondition: 5
+---
+title: "Variable Substitution in Conditions"
+description: "Using a variable in the condition of !If"
+result: !If
+  test: !Op
+    a: !Var numericCondition
+    op: '>'
+    b: 3
+  then: 'Number is greater than 3'
+  else: 'Number is not greater than 3'
+
+# Example 4: Type-Checking in Condition
+---
+!Defaults
+stringValue: 'true'
+numericValue: 1
+---
+title: "Type-Checking in Condition"
+description: "Type-checking with string and number in condition"
+stringResult: !If
+  test: !IsString,Var stringValue
+  then: 'Value is a string'
+  else: 'Value is not a string'
+numberResult: !If
+  test: !IsNumber,Var numericValue
+  then: 'Value is a number'
+  else: 'Value is not a number'
+
+# Example 5: Omitting 'then' and 'else' Branches
+---
+!Defaults
+omitThenCondition: true
+omitElseCondition: false
+---
+title: "Omitting 'then' and 'else' Branches"
+description: "Demonstrates behavior when 'then' or 'else' branch is omitted"
+omitThenResult: !If
+  test: !Var omitThenCondition
+  else: 'No "then" branch'
+omitElseResult: !If
+  test: !Var omitElseCondition
+  then: 'No "else" branch'
+omitElseResult2: !If
+  test: !Not,Var omitElseCondition
+  then: 'No "else" branch'
+
+# Example 6: Using !If with Lists and Dictionaries
+---
+!Defaults
+listToCheck: [1, 2, 3]
+dictToCheck: { key1: 'value1', key2: 'value2' }
+---
+title: "Using !If with Lists and Dictionaries"
+description: "Checks if lists and dictionaries are empty"
+listResult: !If
+  test: !IsList,Var listToCheck
+  then: 'Variable is a list'
+  else: 'Variable is not a list'
+dictResult: !If
+  test: !IsDict,Var dictToCheck
+  then: 'Variable is a dictionary'
+  else: 'Variable is not a dictionary'
+

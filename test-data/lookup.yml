@@ -1,0 +1,38 @@
+!Defaults
+people:
+  - name: "Alice"
+    age: 30
+    hobbies: ["Swimming", "Cycling"]
+  - name: "Bob"
+    age: 25
+    hobbies: ["Hiking", "Reading"]
+  - name: "Charlie"
+    age: 35
+    hobbies: ["Gaming", "Cooking"]
+---
+title: "Lookup Single Value Example"
+description: "Demonstrates looking up a single value from a list of dictionaries."
+personName: !Lookup people[0].name
+---
+title: "Lookup All Matches Example"
+description: "Demonstrates looking up all matches for a given key in a list of dictionaries."
+personAges: !LookupAll people[*].age
+---
+title: "Lookup with Condition Example"
+description: "Demonstrates looking up values based on a condition using !Filter and !Lookup."
+peopleWithHikingHobby: !Filter
+  test: !Any,Loop
+    over: !Lookup item.hobbies
+    template: !Op
+      a: !Var item
+      op: ==
+      b: "Hiking"
+  over: !Var people
+---
+title: "Lookup and Modify Example"
+description: "Demonstrates looking up a value and modifying it using !Format."
+personNameUppercase: !Format,Lookup people[1].name
+---
+title: "Lookup with Error Handling Example"
+description: "Demonstrates error handling when a lookup does not find a match."
+tryLookupNonexistent: !Lookup people[999].name

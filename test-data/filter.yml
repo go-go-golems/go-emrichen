@@ -1,0 +1,61 @@
+!Defaults
+numbers: [1, 2, 3, 4, 5, 6]
+---
+title: "Basic Filter Example"
+description: "Filtering a list of numbers greater than 3"
+filteredNumbers: !Filter
+  test: !Op
+    a: !Var item
+    op: gt
+    b: 3
+  over: !Var numbers
+
+---
+!Defaults
+strings: ["Apple", "Banana", "Avocado", "Grape"]
+---
+title: "Custom Predicate Filter Example"
+description: "Filtering a list of strings to only include strings that start with 'A'"
+filteredStrings: !Filter
+  test: !Op
+    a: !Var item
+    op: startswith
+    b: "A"
+  over: !Var strings
+
+---
+!Defaults
+people:
+  - name: "Alice"
+    hobbies: ["Swimming", "Cycling", "Reading"]
+  - name: "Bob"
+    hobbies: ["Hiking", "Reading", "Gaming"]
+  - name: "Charlie"
+    hobbies: ["Gaming", "Cycling", "Cooking"]
+---
+title: "Nested Filter Example"
+description: "Filtering a list of dictionaries, then filtering a nested list within each dictionary"
+filteredPeople: !Filter
+  test: !Any,Loop
+    over: !Lookup item.hobbies
+    template: !Op
+      a: !Var item
+      op: startswith
+      b: "C"
+  over: !Var people
+---
+!Defaults
+fruitQuantities:
+  apple: 5
+  banana: 2
+  orange: 8
+  grape: 0
+---
+title: "Filter with Dictionary Example"
+description: "Filtering key-value pairs in a dictionary"
+filteredFruit: !Filter
+  test: !Op
+    a: !Var item
+    op: gt
+    b: 2
+  over: !Var fruitQuantities

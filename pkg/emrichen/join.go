@@ -6,14 +6,14 @@ import (
 	"strings"
 )
 
-func (ei *EmrichenInterpreter) handleJoin(node *yaml.Node) (*yaml.Node, error) {
+func (ei *Interpreter) handleJoin(node *yaml.Node) (*yaml.Node, error) {
 	separator := " " // Default separator
 	itemsNode := node
 
 	if node.Kind == yaml.MappingNode {
 		args, err := ei.parseArgs(node, []parsedVariable{
 			// don't expand items here yet
-			{Name: "items", Required: true},
+			{Name: "items", Required: true, Expand: true},
 			{Name: "separator", Expand: true},
 		})
 		if err != nil {
@@ -29,21 +29,28 @@ func (ei *EmrichenInterpreter) handleJoin(node *yaml.Node) (*yaml.Node, error) {
 		if sepNode, ok := args["separator"]; ok && sepNode.Kind == yaml.ScalarNode {
 			separator = sepNode.Value
 		}
+	} else if node.Kind == yaml.SequenceNode {
+		itemsNode = &yaml.Node{
+			Kind:    yaml.SequenceNode,
+			Content: node.Content,
+			Tag:     "!!seq",
+		}
+		var err error
+		itemsNode, err = ei.Process(itemsNode)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	var items []string
 	for _, itemNode := range itemsNode.Content {
-		expandedItemNode, err := ei.Process(itemNode)
-		if err != nil {
-			return nil, err
-		}
-		if expandedItemNode.Kind != yaml.ScalarNode {
+		if itemNode.Kind != yaml.ScalarNode {
 			return nil, errors.New("!Join items must be scalar values")
 		}
-		if expandedItemNode.Tag == "!!null" {
+		if itemNode.Tag == "!!null" {
 			continue
 		}
-		items = append(items, expandedItemNode.Value)
+		items = append(items, itemNode.Value)
 	}
 
 	joinedStr := strings.Join(items, separator)

@@ -1,0 +1,35 @@
+!Defaults
+people:
+  - name: "Alice"
+    hobbies: ["Swimming", "Cycling", "Reading"]
+  - name: "Bob"
+    hobbies: ["Hiking", "Reading", "Gaming"]
+  - name: "Charlie"
+    hobbies: ["Gaming", "Cycling", "Cooking"]
+---
+title: "Loop hobbies"
+description: "Filtering a list of dictionaries, then filtering a nested list within each dictionary"
+aliceHobbies: !Loop
+  over: !Lookup people[0].hobbies
+  template: !Op
+    a: !Var item
+    op: "=="
+    b: "Cycling"
+---
+title: "Any hobbies"
+description: "Filtering a list of dictionaries, then filtering a nested list within each dictionary"
+aliceHobbies: !Any,Loop
+  over: !Lookup people[0].hobbies
+  template: !Op
+    a: !Var item
+    op: ==
+    b: "Cycling"
+---
+title: "Debug Any hobbies"
+description: "Filtering a list of dictionaries, then filtering a nested list within each dictionary"
+aliceHobbies: !Debug,Loop
+  over: !Lookup people[0].hobbies
+  template: !Op
+    a: !Var item
+    op: ==
+    b: "Cycling"

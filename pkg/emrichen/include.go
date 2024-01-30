@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 )
 
-func (ei *EmrichenInterpreter) handleInclude(node *yaml.Node) (*yaml.Node, error) {
+func (ei *Interpreter) handleInclude(node *yaml.Node) (*yaml.Node, error) {
 	if node.Kind != yaml.ScalarNode {
 		return nil, errors.New("!Include requires a scalar value (the file path)")
 	}
@@ -33,7 +33,7 @@ func (ei *EmrichenInterpreter) handleInclude(node *yaml.Node) (*yaml.Node, error
 	}, nil
 }
 
-func (ei *EmrichenInterpreter) loadYaml(filePath string) ([]*yaml.Node, error) {
+func (ei *Interpreter) loadYaml(filePath string) ([]*yaml.Node, error) {
 	f, err := os.Open(filePath)
 	if err != nil {
 		return nil, fmt.Errorf("error reading file for !Include: %v", err)
@@ -61,7 +61,7 @@ func (ei *EmrichenInterpreter) loadYaml(filePath string) ([]*yaml.Node, error) {
 	return decodedNodes, nil
 }
 
-func (ei *EmrichenInterpreter) handleIncludeBase64(node *yaml.Node) (*yaml.Node, error) {
+func (ei *Interpreter) handleIncludeBase64(node *yaml.Node) (*yaml.Node, error) {
 	if node.Kind != yaml.ScalarNode {
 		return nil, errors.New("!IncludeBase64 requires a scalar value (the file path)")
 	}
@@ -76,7 +76,7 @@ func (ei *EmrichenInterpreter) handleIncludeBase64(node *yaml.Node) (*yaml.Node,
 	return makeString(encodedContent), nil
 }
 
-func (ei *EmrichenInterpreter) handleIncludeBinary(node *yaml.Node) (*yaml.Node, error) {
+func (ei *Interpreter) handleIncludeBinary(node *yaml.Node) (*yaml.Node, error) {
 	if node.Kind != yaml.ScalarNode {
 		return nil, errors.New("!IncludeBinary requires a scalar value (the file path)")
 	}
@@ -91,7 +91,7 @@ func (ei *EmrichenInterpreter) handleIncludeBinary(node *yaml.Node) (*yaml.Node,
 	return makeString(string(fileContent)), nil
 }
 
-func (ei *EmrichenInterpreter) handleIncludeGlob(node *yaml.Node) (*yaml.Node, error) {
+func (ei *Interpreter) handleIncludeGlob(node *yaml.Node) (*yaml.Node, error) {
 	if node.Kind != yaml.ScalarNode {
 		return nil, errors.New("!IncludeGlob requires a scalar value (the glob pattern)")
 	}
@@ -129,7 +129,7 @@ func (ei *EmrichenInterpreter) handleIncludeGlob(node *yaml.Node) (*yaml.Node, e
 	}, nil
 }
 
-func (ei *EmrichenInterpreter) handleIncludeText(node *yaml.Node) (*yaml.Node, error) {
+func (ei *Interpreter) handleIncludeText(node *yaml.Node) (*yaml.Node, error) {
 	if node.Kind != yaml.ScalarNode {
 		return nil, errors.New("!IncludeText requires a scalar value (the file path)")
 	}

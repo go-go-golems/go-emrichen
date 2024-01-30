@@ -1,0 +1,95 @@
+!Defaults
+numbers: [1, 2, 3, 4, 5]
+strings: ["one", "two", "three", "four", "five"]
+fruitQuantities:
+  apple: 5
+  banana: 2
+  orange: 8
+  grape: 0
+---
+title: "Basic Loop Example"
+description: "Looping over a list of numbers and printing each number."
+loopedNumbers: !Loop
+  over: !Var numbers
+  as: number
+  template: !Format "Number: {number}"
+
+---
+title: "Loop with Index Example"
+description: "Looping over a list of strings, using the index in the output."
+indexedStrings: !Loop
+  over: !Var strings
+  as: string
+  index_as: idx
+  template: !Format "Index {idx}: {string}"
+
+---
+title: "Nested Loop Example"
+description: "A nested loop example, looping over a list of lists."
+nestedLoops: !Loop
+  over: [[1, 2], [3, 4], [5]]
+  as: sublist
+  template: !Loop
+    over: !Var sublist
+    as: item
+    template: !Format "Item: {item}"
+
+---
+title: "Loop with Previous Value Example"
+description: "Looping over numbers, accessing the previous number in each iteration."
+previousValueLoop: !Loop
+  over: !Var numbers
+  as: current
+  previous_as: prev
+  template: !Format "Current: {current}, Previous: {prev}"
+
+---
+title: "Loop with Conditional Logic"
+description: "Using conditional logic inside a loop to filter items."
+conditionalLoop: !Loop
+  over: !Var numbers
+  as: num
+  template: !If
+    test: !Op
+      a: !Var num
+      op: ">"
+      b: 3
+    then: !Format "Number {num} is greater than 3"
+    else: !Void
+
+---
+title: "Loop with Custom Start Index"
+description: "Starting the loop from a custom index."
+startIndexLoop: !Loop
+  over: !Var strings
+  as: string
+  index_as: idx
+  index_start: 2
+  template: !Format "Index {idx}: {string}"
+
+---
+title: "Loop with Tag Composition"
+description: "Demonstrating tag composition within a loop."
+tagCompositionLoop: !Loop
+  over: ["true", "false", "true"]
+  as: stringBool
+  template: !Not,Var stringBool
+
+---
+title: "Looping Over a Mapping Node"
+description: "Looping over a mapping node and accessing both key and value."
+loopOverMapping: !Loop
+  over: !Var fruitQuantities
+  as: quantity
+  index_as: fruit
+  template: !Format "{fruit}: {quantity}"
+
+---
+title: "Loop with Index Start on Mapping"
+description: "Demonstrating the use of index_start with a mapping node."
+mappingWithIndexStart: !Loop
+  over: !Var fruitQuantities
+  as: quantity
+  index_as: fruit
+  index_start: 1
+  template: !Format "{fruit}: {quantity}"

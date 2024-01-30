@@ -5,9 +5,11 @@ import (
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
 	"reflect"
+	"regexp"
+	"strings"
 )
 
-func (ei *EmrichenInterpreter) handleOp(node *yaml.Node) (*yaml.Node, error) {
+func (ei *Interpreter) handleOp(node *yaml.Node) (*yaml.Node, error) {
 	args, err := ei.parseArgs(node, []parsedVariable{
 		{Name: "op", Required: true, Expand: true},
 		{Name: "a", Required: true, Expand: true},
@@ -29,6 +31,13 @@ func (ei *EmrichenInterpreter) handleOp(node *yaml.Node) (*yaml.Node, error) {
 	case "+", "plus", "add", "-", "minus", "sub", "subtract", "*", "×", "mul", "times", "/", "÷", "div", "divide", "truediv", "//", "floordiv",
 		"<", "lt", ">", "gt", "<=", "le", "lte", ">=", "ge", "gte", "%", "mod", "modulo":
 		isNumberOperation = true
+	default:
+	}
+
+	isStringOperation := false
+	switch opNode.Value {
+	case "contains", "startswith", "endswith", "matches":
+		isStringOperation = true
 	default:
 	}
 
@@ -112,15 +121,74 @@ func (ei *EmrichenInterpreter) handleOp(node *yaml.Node) (*yaml.Node, error) {
 	case "%", "mod", "modulo":
 		return makeInt(int(a) % int(b)), nil
 
+	case "contains":
+		if !isStringOperation {
+			return nil, errors.New("contains operator requires string arguments")
+		}
+		return makeBool(strings.Contains(aProcessed.Value, bProcessed.Value)), nil
+
+	case "startswith":
+		if !isStringOperation {
+			return nil, errors.New("startswith operator requires string arguments")
+		}
+		return makeBool(strings.HasPrefix(aProcessed.Value, bProcessed.Value)), nil
+
+	case "endswith":
+		if !isStringOperation {
+			return nil, errors.New("endswith operator requires string arguments")
+		}
+
+		return makeBool(strings.HasSuffix(aProcessed.Value, bProcessed.Value)), nil
+
+	case "matches":
+		if !isStringOperation {
+			return nil, errors.New("matches operator requires string arguments")
+		}
+		// do regexp match check
+		r, err := regexp.Compile(bProcessed.Value)
+		if err != nil {
+			return nil, errors.New("invalid regexp")
+		}
+		return makeBool(r.MatchString(aProcessed.Value)), nil
+
 	// Membership tests
-	// TODO(manuel, 2024-01-22) Implement the membership tests, in fact look up how they are supposed to work
 	case "in", "∈":
-		return nil, errors.New("not implemented")
+		r, err := ei.opIn(bProcessed, aProcessed)
+		if err != nil {
+			return nil, err
+		}
+		return makeBool(r), nil
 
 	case "not in", "∉":
-		return nil, errors.New("not implemented")
+		r, err := ei.opIn(bProcessed, aProcessed)
+		if err != nil {
+			return nil, err
+		}
+		return makeBool(!r), nil
 
 	default:
 		return nil, fmt.Errorf("unsupported operator: %s", opNode.Value)
 	}
+}
+
+func (ei *Interpreter) opIn(bProcessed *yaml.Node, aProcessed *yaml.Node) (bool, error) {
+	// check that b is a sequence
+	if bProcessed.Kind != yaml.SequenceNode {
+		return false, errors.New("in operator requires a sequence as second argument")
+	}
+	a, ok := NodeToInterface(aProcessed)
+	if !ok {
+		return false, errors.New("could not convert first argument to interface")
+	}
+	// check that a is in b
+	for _, item := range bProcessed.Content {
+		b, ok := NodeToInterface(item)
+		if !ok {
+			return false, errors.New("could not convert second argument to interface")
+		}
+		if reflect.DeepEqual(a, b) {
+			return true, nil
+		}
+	}
+	return false, nil
 }

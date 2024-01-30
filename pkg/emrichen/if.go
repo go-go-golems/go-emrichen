@@ -2,7 +2,7 @@ package emrichen
 
 import "gopkg.in/yaml.v3"
 
-func (ei *EmrichenInterpreter) handleIf(node *yaml.Node) (*yaml.Node, error) {
+func (ei *Interpreter) handleIf(node *yaml.Node) (*yaml.Node, error) {
 	args, err := ei.parseArgs(node, []parsedVariable{
 		{Name: "test", Required: true},
 		{Name: "then"},

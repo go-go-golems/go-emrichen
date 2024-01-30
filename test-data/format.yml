@@ -1,0 +1,25 @@
+!Defaults
+name: John
+age: 30
+user:
+  firstName: Jane
+  lastName: Doe
+  age: 35
+---
+
+title: "Basic String Formatting Example"
+description: "Simple string interpolation using name and age"
+example:
+  formattedString: !Format "Hello, {name}. You are {age} years old."
+
+---
+title: "Go Template Syntax Example"
+description: "Using Go template syntax for variable interpolation"
+example:
+  goFormattedString: !Format "Hello, {{.name}}. Next year, {user.firstName} will be {{ add (lookup \"user.age\") 1}} years old."
+
+---
+title: "JSONPath Lookup in Format String"
+description: "Interpolating JSONPath lookup results into a format string"
+example:
+  jsonPathFormattedString: !Format "User: {user.firstName} {user.lastName}"

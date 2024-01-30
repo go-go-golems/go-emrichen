@@ -7,7 +7,7 @@ import (
 	"net/url"
 )
 
-func (ei *EmrichenInterpreter) handleURLEncode(node *yaml.Node) (*yaml.Node, error) {
+func (ei *Interpreter) handleURLEncode(node *yaml.Node) (*yaml.Node, error) {
 	if node.Kind == yaml.ScalarNode {
 		// Simple string encoding
 		return makeString(url.QueryEscape(node.Value)), nil

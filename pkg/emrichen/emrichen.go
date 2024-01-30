@@ -15,30 +15,30 @@ import (
 	"text/template"
 )
 
-type EmrichenInterpreter struct {
+type Interpreter struct {
 	env            *env.Env
 	additionalTags map[string]func(node *yaml.Node) (*yaml.Node, error)
 	funcmaps       []template.FuncMap
 }
 
-type EmrichenInterpreterOption func(*EmrichenInterpreter) error
+type InterpreterOption func(*Interpreter) error
 
-func WithVars(vars map[string]interface{}) EmrichenInterpreterOption {
-	return func(ei *EmrichenInterpreter) error {
+func WithVars(vars map[string]interface{}) InterpreterOption {
+	return func(ei *Interpreter) error {
 		ei.env.Push(vars)
 		return nil
 	}
 }
 
-func WithFuncMap(funcmap ...template.FuncMap) EmrichenInterpreterOption {
-	return func(ei *EmrichenInterpreter) error {
+func WithFuncMap(funcmap ...template.FuncMap) InterpreterOption {
+	return func(ei *Interpreter) error {
 		ei.funcmaps = append(ei.funcmaps, funcmap...)
 		return nil
 	}
 }
 
-func WithAdditionalTags(tags map[string]func(node *yaml.Node) (*yaml.Node, error)) EmrichenInterpreterOption {
-	return func(ei *EmrichenInterpreter) error {
+func WithAdditionalTags(tags map[string]func(node *yaml.Node) (*yaml.Node, error)) InterpreterOption {
+	return func(ei *Interpreter) error {
 		for k, v := range tags {
 			if _, ok := ei.additionalTags[k]; ok {
 				return errors.Errorf("tag %s already exists", k)
@@ -49,8 +49,8 @@ func WithAdditionalTags(tags map[string]func(node *yaml.Node) (*yaml.Node, error
 	}
 }
 
-func NewEmrichenInterpreter(options ...EmrichenInterpreterOption) (*EmrichenInterpreter, error) {
-	ret := &EmrichenInterpreter{
+func NewInterpreter(options ...InterpreterOption) (*Interpreter, error) {
+	ret := &Interpreter{
 		env:            env.NewEnv(),
 		additionalTags: map[string]func(node *yaml.Node) (*yaml.Node, error){},
 	}
@@ -67,12 +67,12 @@ func NewEmrichenInterpreter(options ...EmrichenInterpreterOption) (*EmrichenInte
 
 type interpretHelper struct {
 	target      interface{}
-	interpreter *EmrichenInterpreter
+	interpreter *Interpreter
 }
 
 type rawInterpretHelper struct {
 	target      *yaml.Node
-	interpreter *EmrichenInterpreter
+	interpreter *Interpreter
 }
 
 func (ei *interpretHelper) UnmarshalYAML(value *yaml.Node) error {
@@ -96,21 +96,21 @@ func (ei *rawInterpretHelper) UnmarshalYAML(value *yaml.Node) error {
 
 }
 
-func (ei *EmrichenInterpreter) CreateDecoder(target interface{}) *interpretHelper {
+func (ei *Interpreter) CreateDecoder(target interface{}) *interpretHelper {
 	return &interpretHelper{
 		target:      target,
 		interpreter: ei,
 	}
 }
 
-func (ei *EmrichenInterpreter) CreateRawDecoder(target *yaml.Node) *rawInterpretHelper {
+func (ei *Interpreter) CreateRawDecoder(target *yaml.Node) *rawInterpretHelper {
 	return &rawInterpretHelper{
 		target:      target,
 		interpreter: ei,
 	}
 }
 
-func (ei *EmrichenInterpreter) RegisterTag(tag string, f func(node *yaml.Node) (*yaml.Node, error)) error {
+func (ei *Interpreter) RegisterTag(tag string, f func(node *yaml.Node) (*yaml.Node, error)) error {
 	if _, ok := ei.additionalTags[tag]; ok {
 		return errors.Errorf("tag %s already exists", tag)
 	}
@@ -118,7 +118,7 @@ func (ei *EmrichenInterpreter) RegisterTag(tag string, f func(node *yaml.Node) (
 	return nil
 }
 
-func (ei *EmrichenInterpreter) LookupFirst(jsonPath string) (*yaml.Node, error) {
+func (ei *Interpreter) LookupFirst(jsonPath string) (*yaml.Node, error) {
 	v, err := ei.env.LookupFirst("$." + jsonPath)
 	if err != nil {
 		return nil, err
@@ -130,7 +130,7 @@ func (ei *EmrichenInterpreter) LookupFirst(jsonPath string) (*yaml.Node, error) 
 	return node, nil
 }
 
-func (ei *EmrichenInterpreter) LookupAll(jsonPath string) (*yaml.Node, error) {
+func (ei *Interpreter) LookupAll(jsonPath string) (*yaml.Node, error) {
 	v, err := ei.env.LookupAll("$."+jsonPath, true)
 	if err != nil {
 		return nil, err
@@ -142,7 +142,7 @@ func (ei *EmrichenInterpreter) LookupAll(jsonPath string) (*yaml.Node, error) {
 	return node, nil
 }
 
-func (ei *EmrichenInterpreter) Process(node *yaml.Node) (*yaml.Node, error) {
+func (ei *Interpreter) Process(node *yaml.Node) (*yaml.Node, error) {
 	tag := node.Tag
 	ss := strings.Split(tag, ",")
 	if len(ss) == 0 {
@@ -194,6 +194,19 @@ func (ei *EmrichenInterpreter) Process(node *yaml.Node) (*yaml.Node, error) {
 				return ei.handleConcat(node)
 
 			case "!Debug":
+				// need to remove debug tag
+				switch node.Kind {
+				case yaml.SequenceNode:
+					node.Tag = "!!seq"
+				case yaml.MappingNode:
+					node.Tag = "!!map"
+				case yaml.ScalarNode:
+					node.Tag = "!!str"
+				case yaml.DocumentNode:
+					node.Tag = "!!doc"
+				case yaml.AliasNode:
+					node.Tag = "!!alias"
+				}
 				v, err := ei.Process(node)
 				if err != nil {
 					return nil, err
@@ -311,19 +324,7 @@ func (ei *EmrichenInterpreter) Process(node *yaml.Node) (*yaml.Node, error) {
 				return makeString(hex.EncodeToString(hash[:])), nil
 
 			case "!Var":
-				if node.Kind == yaml.ScalarNode {
-					varName := node.Value
-					varValue, ok := ei.env.GetVar(varName)
-					if !ok {
-						return nil, fmt.Errorf("variable %s not found", varName)
-					}
-					v, err := ValueToNode(varValue)
-					if err != nil {
-						return nil, err
-					}
-					return v, nil
-				}
-				return nil, errors.New("variable definition must be !Var variable name")
+				return ei.handleVar(node)
 
 			case "!URLEncode":
 				return ei.handleURLEncode(node)
@@ -400,7 +401,7 @@ func (ei *EmrichenInterpreter) Process(node *yaml.Node) (*yaml.Node, error) {
 	return node, nil
 }
 
-func (ei *EmrichenInterpreter) updateVars(content []*yaml.Node) error {
+func (ei *Interpreter) updateVars(content []*yaml.Node) error {
 	name := ""
 	vars := map[string]interface{}{}
 	for i := range content {

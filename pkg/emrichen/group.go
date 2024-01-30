@@ -6,7 +6,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func (ei *EmrichenInterpreter) handleGroup(node *yaml.Node) (*yaml.Node, error) {
+func (ei *Interpreter) handleGroup(node *yaml.Node) (*yaml.Node, error) {
 	if node.Kind != yaml.MappingNode {
 		return nil, errors.New("!Group requires a mapping node")
 	}

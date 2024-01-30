@@ -5,7 +5,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func (ei *EmrichenInterpreter) handleLoop(node *yaml.Node) (*yaml.Node, error) {
+func (ei *Interpreter) handleLoop(node *yaml.Node) (*yaml.Node, error) {
 	if node.Kind != yaml.MappingNode {
 		return nil, errors.New("!Loop requires a mapping node")
 	}

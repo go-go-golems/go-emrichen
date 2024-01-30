@@ -1,0 +1,74 @@
+!Defaults
+words: ["hello", "world"]
+numbers: [1, 2, 3]
+mixed: ["hello", 1, true]
+---
+title: "Basic Join Example"
+description: "Joining words with default space separator"
+joinedWords: !Join,Var words
+---
+!Defaults
+customSeparatorWords: ["hello", "world"]
+customSeparator: ", "
+---
+title: "Join with Custom Separator"
+description: "Joining words with a custom separator"
+joinedCustomSeparatorWords: !Join { items: !Var customSeparatorWords, separator: !Var customSeparator }
+---
+!Defaults
+emptyList: []
+---
+title: "Join with Empty List"
+description: "Demonstrates joining an empty list"
+joinedEmpty: !Join,Var emptyList
+---
+!Defaults
+singleElementList: ["hello"]
+---
+title: "Join with Single Element"
+description: "Joining a list with a single element"
+joinedSingleElement: !Join,Var singleElementList
+---
+!Defaults
+nonStringElements: [1, 2, 3]
+---
+title: "Join Non-String Elements"
+description: "Joining a list of non-string elements"
+joinedNonString: !Join,Var nonStringElements
+---
+!Defaults
+listWithNulls: ["hello", null, "world"]
+---
+title: "Join List with Null Elements"
+description: "Joining a list that includes null elements"
+joinedWithNulls: !Join,Var listWithNulls
+---
+!Defaults
+separatorInElements: ["hello, world", "foo, bar"]
+complexSeparator: "; "
+---
+title: "Separator as Part of the Elements"
+description: "Using a separator that also appears in the elements"
+joinedComplexSeparator: !Join { items: !Var separatorInElements, separator: !Var complexSeparator }
+---
+!Defaults
+escapedCharacters: ["hello\nworld", "foo\nbar"]
+---
+title: "Join with Escaped Characters"
+description: "Joining elements that contain escaped characters"
+joinedEscapedCharacters: !Join,Var escapedCharacters
+---
+!Defaults
+complexSeparatorItems: ["hello", "world"]
+complexSeparator: "--**--"
+---
+title: "Joining with a Complex Separator"
+description: "Using a complex string as a separator"
+joinedComplex: !Join { items: !Var complexSeparatorItems, separator: !Var complexSeparator }
+---
+!Defaults
+whitespaceElements: ["  hello  ", "  world  "]
+---
+title: "Handling of Whitespace in Elements"
+description: "Demonstrates how whitespace in elements is handled"
+joinedWhitespace: !Join,Var whitespaceElements

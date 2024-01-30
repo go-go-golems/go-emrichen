@@ -1,0 +1,36 @@
+!Defaults
+dict1: {a: 1, b: 2}
+dict2: {b: 3, c: 4}
+dict3: {d: 5}
+nestedDict1: {x: {y: 1, z: 2}}
+nestedDict2: {x: {z: 3, w: 4}}
+---
+title: "Basic Merge"
+description: "Merging two dictionaries with no overlapping keys"
+example: !Merge [!Var dict1, !Var dict3]
+# Expected output: {a: 1, b: 2, d: 5}
+---
+title: "Overlapping Keys"
+description: "Merging dictionaries with overlapping keys, where the last one takes precedence"
+example: !Merge [!Var dict1, !Var dict2]
+# Expected output: {a: 1, b: 3, c: 4}
+---
+title: "Nested Merge"
+description: "Merging dictionaries with nested dictionaries"
+example: !Merge [!Var nestedDict1, !Var nestedDict2]
+# Expected output: {x: {y: 1, z: 3, w: 4}}
+---
+title: "Merge with Empty Dictionary"
+description: "Merging with an empty dictionary should not affect the result"
+example: !Merge [{}, !Var dict1]
+# Expected output: {a: 1, b: 2}
+---
+title: "Complex Merge Scenario"
+description: "A complex merge scenario combining multiple dictionaries"
+example: !Merge [!Var dict1, {}, !Var dict2, !Var dict3]
+# Expected output: {a: 1, b: 3, c: 4, d: 5}
+---
+title: "Merge with Void"
+description: "Using Void with !Merge"
+example: !Merge [!Var dict1, !Void dict2]
+# Expected output: {a: 1, b: 2}

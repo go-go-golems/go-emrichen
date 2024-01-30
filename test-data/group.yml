@@ -1,0 +1,78 @@
+!Defaults
+people:
+  - name: "Alice"
+    age: 30
+  - name: "Bob"
+    age: 40
+  - name: "Charlie"
+    age: 30
+  - name: "Diana"
+    age: 40
+---
+title: "Grouping by Age"
+description: "Demonstrates basic grouping of people by age."
+groupedPeople: !Group
+  over: !Var people
+  as: person
+  by: !Lookup person.age
+  template: !Lookup person.name
+
+---
+title: "Grouping with Go Syntax"
+description: "Grouping with Go syntax using a function for key generation."
+groupedPeopleGo: !Group
+  over: !Var people
+  as: person
+  by: !Format "Age_{person.age}"
+  template: !Format "{person.name} is {person.age} years old"
+
+---
+title: "Grouping with JSONPath Lookup"
+description: "Using JSONPath lookup to group people by the first letter of their name."
+groupedPeopleJsonPath: !Group
+  over: !Var people
+  as: person
+  by: !Format "{person.name}"
+  template: !Lookup person.name
+---
+!Defaults
+people:
+  - name: Alice
+    age: 30
+  - name: Bob
+    age: 25
+  - name: Alice
+    age: 32
+numbers: [1, 2, 2, 3, 3, 3]
+products:
+  - category: Hardware
+    item: Keyboard
+  - category: Hardware
+    item: Mouse
+  - category: Software
+    item: Operating System
+
+---
+title: "Basic Grouping by Name"
+description: "Group a list of people by their name."
+groupedPeopleByName: !Group
+  over: !Var people
+  as: person
+  by: !Lookup person.name
+  template: !Lookup person.age
+
+---
+title: "Grouping with Custom Key"
+description: "Group items and generate a custom key using Go-style syntax."
+groupedNumbersByCustomKey: !Group
+  over: !Var numbers
+  as: number
+  by: !Format "Group_{number}"
+
+---
+title: "Grouping Without a Template"
+description: "Group objects by a nested field without specifying a template."
+groupedProductsByCategory: !Group
+  over: !Var products
+  as: product
+  by: !Lookup product.category

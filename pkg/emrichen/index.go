@@ -7,7 +7,7 @@ import (
 	"os"
 )
 
-func (ei *EmrichenInterpreter) handleIndex(node *yaml.Node) (*yaml.Node, error) {
+func (ei *Interpreter) handleIndex(node *yaml.Node) (*yaml.Node, error) {
 	args, err := ei.parseArgs(node, []parsedVariable{
 		{Name: "over", Required: true, Expand: true},
 		{Name: "by", Required: true},

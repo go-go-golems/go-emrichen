@@ -5,7 +5,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func (ei *EmrichenInterpreter) handleConcat(node *yaml.Node) (*yaml.Node, error) {
+func (ei *Interpreter) handleConcat(node *yaml.Node) (*yaml.Node, error) {
 	if node.Kind != yaml.SequenceNode {
 		return nil, errors.New("!Concat requires a sequence node")
 	}

@@ -88,6 +88,17 @@ func TestEmrichenExistsTag(t *testing.T) {
 			expected:    "false",
 			expectError: true,
 		},
+		{
+			name: "Array index out of bound",
+			inputYAML: `!With
+vars: 
+  foo:
+  - bar
+template: !Exists foo[1]
+`,
+			expected:    "false",
+			expectError: false,
+		},
 	}
 
 	runTests(t, tests)

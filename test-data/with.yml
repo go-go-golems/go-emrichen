@@ -1,0 +1,55 @@
+---
+!Defaults
+globalVar: "global value"
+numbers: [1, 2, 3, 4, 5]
+---
+title: "Basic With Example"
+description: "Demonstrates basic usage of !With for local variable definition."
+example: !With
+  vars:
+    localVar: "local value"
+  template: !Var localVar
+---
+title: "With and Global Variables"
+description: "Shows how a variable defined outside !With is accessible inside."
+example: !With
+  vars:
+    localVar: "local value"
+  template: !Var globalVar
+---
+title: "Nested With Blocks"
+description: "Illustrates nested !With blocks with different local variables."
+example: !With
+  vars:
+    outerVar: "outer"
+  template: !With
+    vars:
+      innerVar: "inner"
+    template: !Join { items: [!Var outerVar, !Var innerVar], separator: " " }
+---
+title: "With and Loop Interaction"
+description: "Using !With in conjunction with !Loop to process a list."
+example: !With
+  vars:
+    items: !Var numbers
+  template: !Loop
+    over: !Var items
+    as: item
+    template: !Var item
+---
+title: "With and Conditional Logic"
+description: "Demonstrates using !With with !If for conditional logic."
+example: !With
+  vars:
+    condition: true
+  template: !If
+    test: !Var condition
+    then: "Condition is true"
+    else: "Condition is false"
+---
+title: "Tag Composition with !With"
+description: "Shows how to use tag composition with !With for complex expressions."
+example: !With
+  vars:
+    complexExpression: !Join { items: ["Hello", "World"], separator: " " }
+  template: !Var complexExpression

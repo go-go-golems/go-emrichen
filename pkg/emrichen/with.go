@@ -5,7 +5,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func (ei *EmrichenInterpreter) handleWith(node *yaml.Node) (*yaml.Node, error) {
+func (ei *Interpreter) handleWith(node *yaml.Node) (*yaml.Node, error) {
 	if node.Kind != yaml.MappingNode {
 		return nil, errors.New("!With requires a mapping node")
 	}

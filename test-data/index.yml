@@ -1,0 +1,84 @@
+---
+!Defaults
+employees:
+  - name: Alice
+    department: Engineering
+    salary: 70000
+  - name: Bob
+    department: Marketing
+    salary: 60000
+  - name: Carol
+    department: Engineering
+    salary: 75000
+  - name: Dave
+    department: Marketing
+    salary: 62000
+---
+
+title: "Basic Index Example"
+description: "Creating a dictionary indexed by employee names."
+indexedEmployees: !Index
+  over: !Var employees
+  by: !Lookup item.name
+  template: !Lookup item.department
+
+---
+!Defaults
+products:
+  - id: 101
+    name: "Laptop"
+    price: 1200
+  - id: 102
+    name: "Smartphone"
+    price: 800
+  - id: 103
+    name: "Tablet"
+    price: 600
+---
+
+title: "Indexing with Custom Key"
+description: "Indexing products by their ID."
+indexedProducts: !Index
+  over: !Var products
+  by: !Lookup item.id
+  template: !Lookup item.name
+
+---
+!Defaults
+orders:
+  - order_id: 001
+    customer: "John"
+    amount: 300
+  - order_id: 002
+    customer: "Emma"
+    amount: 450
+  - order_id: 003
+    customer: "John"
+    amount: 500
+---
+
+title: "Handling Duplicates in Index"
+description: "Indexing orders by customer name and handling duplicate keys."
+indexedOrders: !Index
+  over: !Var orders
+  by: !Lookup item.customer
+  duplicates: ignore
+  template: !Lookup item.amount
+
+---
+!Defaults
+tasks:
+  - id: A1
+    description: "Fix bug in code"
+    priority: High
+  - id: A2
+    description: "Update documentation"
+    priority: Medium
+---
+
+title: "Index Without Template"
+description: "Using !Index without a template, directly indexing the original items."
+indexedTasks: !Index
+  over: !Var tasks
+  by: !Lookup item.id
+  duplicates: error

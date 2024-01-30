@@ -24,7 +24,7 @@ type testCase struct {
 func runTests(t *testing.T, tests []testCase) {
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			ei, err := NewEmrichenInterpreter(WithVars(tc.initVars))
+			ei, err := NewInterpreter(WithVars(tc.initVars))
 			require.NoError(t, err)
 
 			decoder := yaml.NewDecoder(bytes.NewReader([]byte(tc.inputYAML)))

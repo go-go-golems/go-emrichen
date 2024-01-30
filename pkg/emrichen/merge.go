@@ -5,13 +5,22 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func (ei *EmrichenInterpreter) handleMerge(node *yaml.Node) (*yaml.Node, error) {
+func (ei *Interpreter) handleMerge(node *yaml.Node) (*yaml.Node, error) {
 	if node.Kind != yaml.SequenceNode {
 		return nil, errors.New("!Merge requires a sequence of mapping nodes")
 	}
 
 	mergedMap := make(map[string]*yaml.Node)
 	for _, item := range node.Content {
+		var err error
+		item, err = ei.Process(item)
+		if err != nil {
+			return nil, err
+		}
+		// skip !Void nodes
+		if item == nil {
+			continue
+		}
 		if item.Kind != yaml.MappingNode {
 			return nil, errors.New("!Merge items must be mapping nodes")
 		}
@@ -21,12 +30,7 @@ func (ei *EmrichenInterpreter) handleMerge(node *yaml.Node) (*yaml.Node, error) 
 			keyNode := item.Content[i]
 			valueNode := item.Content[i+1]
 
-			resolvedValue, err := ei.Process(valueNode)
-			if err != nil {
-				return nil, err
-			}
-
-			tempMap[keyNode.Value] = resolvedValue
+			tempMap[keyNode.Value] = valueNode
 		}
 
 		for k, v := range tempMap {

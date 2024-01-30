@@ -1,0 +1,79 @@
+!Defaults
+numbers: [1, 2, 3, 4, 5, 6]
+strings: ["Hello", "World", "Golang", "Programming"]
+---
+title: "Using !Op for Basic Arithmetic Operations"
+description: "Demonstrates basic arithmetic operations with !Op"
+examples:
+  - expression: !Op
+      a: 5
+      op: "+"
+      b: 3
+    result: 8
+  - expression: !Op
+      a: 10
+      op: "-"
+      b: 4
+    result: 6
+  - expression: !Op
+      a: 7
+      op: "*"
+      b: 6
+    result: 42
+  - expression: !Op
+      a: 20.0
+      op: "/"
+      b: 4
+    result: 5.0
+---
+title: "Using !Op for Logical Operations"
+description: "Demonstrates logical operations with !Op"
+examples:
+  - expression: !Op
+      a: 15
+      op: ">"
+      b: 10
+    result: true
+  - expression: !Op
+      a: 2
+      op: "<"
+      b: 3
+    result: true
+  - expression: !Op
+      a: 5
+      op: "=="
+      b: 5
+    result: true
+  - expression: !Op
+      a: 4
+      op: "!="
+      b: 5
+    result: true
+---
+title: "Using !Op with Variable Substitution"
+description: "Demonstrates using !Op with variable substitution"
+examples:
+  - expression: !Op
+      a: !Lookup numbers[0] # 1
+      op: "+"
+      b: 3
+    result: 4
+  - expression: !Op
+      a: 10
+      op: "-"
+      b: !Lookup numbers[1] # 2
+    result: 8
+---
+title: "Using !Op for String Operations"
+description: "Demonstrates string operations with !Op"
+examples:
+  - expression: !Op
+      a: !Lookup strings[0] # "Hello"
+      op: "=="
+      b: "Hello"
+    result: true
+  - expression: !Op
+      a: !Lookup strings[1] # "World"
+      op: "!="
+      b: "Golang"
+    result: true

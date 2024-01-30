@@ -5,7 +5,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func (ei *EmrichenInterpreter) handleAll(node *yaml.Node) (*yaml.Node, error) {
+func (ei *Interpreter) handleAll(node *yaml.Node) (*yaml.Node, error) {
 	if node.Kind != yaml.SequenceNode {
 		return nil, errors.New("!All requires a sequence node")
 	}
@@ -22,7 +22,7 @@ func (ei *EmrichenInterpreter) handleAll(node *yaml.Node) (*yaml.Node, error) {
 	return makeBool(true), nil
 }
 
-func (ei *EmrichenInterpreter) handleAny(node *yaml.Node) (*yaml.Node, error) {
+func (ei *Interpreter) handleAny(node *yaml.Node) (*yaml.Node, error) {
 	if node.Kind != yaml.SequenceNode {
 		return nil, errors.New("!Any requires a sequence node")
 	}

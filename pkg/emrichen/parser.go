@@ -11,7 +11,7 @@ type parsedVariable struct {
 	Required bool
 }
 
-func (ei *EmrichenInterpreter) parseArgs(
+func (ei *Interpreter) parseArgs(
 	node *yaml.Node,
 	variables []parsedVariable,
 ) (map[string]*yaml.Node, error) {
@@ -70,7 +70,7 @@ func (ei *EmrichenInterpreter) parseArgs(
 // - An error if the node doesn't contain the necessary structure or required keys ('url', and optionally 'query').
 //
 // Note: The 'query' parameter is optional and can be a mapping node containing key-value pairs of query parameters.
-func (ei *EmrichenInterpreter) parseURLEncodeArgs(node *yaml.Node) (string, map[string]interface{}, error) {
+func (ei *Interpreter) parseURLEncodeArgs(node *yaml.Node) (string, map[string]interface{}, error) {
 	args, err := ei.parseArgs(node, []parsedVariable{
 		{Name: "url", Required: true, Expand: true},
 		{Name: "query", Expand: true},
