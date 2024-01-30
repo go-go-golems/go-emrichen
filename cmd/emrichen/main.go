@@ -174,6 +174,9 @@ func processFile(interpreter *emrichen.Interpreter, filePath string, w io.Writer
 		}
 
 		_, err = w.Write(processedYAML)
+		if err != nil {
+			return err
+		}
 
 		docCount += 1
 	}
