@@ -1,7 +1,8 @@
 # Emrichen: A Go Implementation
 
 Emrichen is a powerful templating engine designed for generating YAML configurations with ease and precision.
-Originating from a Python implementation, this Go version brings the same flexibility and robustness to Go developers,
+This is a heavily LLM-supported implementation of the super-cool [Python implementation](https://github.com/con2/emrichen) (why don't more people use this?).
+This Go version brings the same flexibility and robustness to Go developers,
 allowing them to dynamically generate configuration files for a wide range of applications, including Kubernetes
 deployments, configuration management, and more.
 
