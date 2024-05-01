@@ -137,7 +137,7 @@ Below is a structured approach to documenting each Emrichen tag with a short des
 
 ## `!All`
 
-Evaluates if all items in the iterable are truthy.
+Evaluates if all items in the iterable are truthy. Don't use `!And`, use `!All` instead.
 
 **Example:**
 ```yaml
@@ -146,7 +146,7 @@ allTrue: !All [true, true, true]
 
 ## `!Any`
 
-Evaluates if at least one item in the iterable is truthy.
+Evaluates if at least one item in the iterable is truthy. Don't use `!Or`, use `!Any` instead.
 
 **Example:**
 ```yaml
