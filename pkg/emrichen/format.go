@@ -24,7 +24,7 @@ func (ei *Interpreter) renderFormatString(formatString string) (string, error) {
 	// Transform the template to the Go template format.
 	formatString, err := transformTemplate(formatString)
 	if err != nil {
-		return "", fmt.Errorf("error transforming template: %v", err)
+		return "", errors.Errorf("error transforming template: %v", err)
 	}
 
 	tmpl := template.New("format")
@@ -58,7 +58,7 @@ func (ei *Interpreter) renderFormatString(formatString string) (string, error) {
 	)
 	tmpl, err = tmpl.Parse(formatString)
 	if err != nil {
-		return "", fmt.Errorf("error parsing format string: %v", err)
+		return "", errors.Errorf("error parsing format string: %v", err)
 	}
 
 	var formatted bytes.Buffer
