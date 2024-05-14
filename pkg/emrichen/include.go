@@ -2,7 +2,6 @@ package emrichen
 
 import (
 	"encoding/base64"
-	"fmt"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
 	"io"
@@ -36,7 +35,7 @@ func (ei *Interpreter) handleInclude(node *yaml.Node) (*yaml.Node, error) {
 func (ei *Interpreter) loadYaml(filePath string) ([]*yaml.Node, error) {
 	f, err := os.Open(filePath)
 	if err != nil {
-		return nil, fmt.Errorf("error reading file for !Include: %v", err)
+		return nil, errors.Wrap(err, "error reading file for !Include")
 	}
 	defer func(f *os.File) {
 		_ = f.Close()
@@ -69,7 +68,7 @@ func (ei *Interpreter) handleIncludeBase64(node *yaml.Node) (*yaml.Node, error) 
 	filePath := node.Value
 	fileContent, err := os.ReadFile(filePath)
 	if err != nil {
-		return nil, fmt.Errorf("error reading file for !IncludeBase64: %v", err)
+		return nil, errors.Wrap(err, "error reading file for !IncludeBase64")
 	}
 
 	encodedContent := base64.StdEncoding.EncodeToString(fileContent)
@@ -84,7 +83,7 @@ func (ei *Interpreter) handleIncludeBinary(node *yaml.Node) (*yaml.Node, error) 
 	filePath := node.Value
 	fileContent, err := os.ReadFile(filePath)
 	if err != nil {
-		return nil, fmt.Errorf("error reading file for !IncludeBinary: %v", err)
+		return nil, errors.Wrap(err, "error reading file for !IncludeBinary")
 	}
 
 	// The binary data needs to be properly handled as per your use case
@@ -101,7 +100,7 @@ func (ei *Interpreter) handleIncludeGlob(node *yaml.Node) (*yaml.Node, error) {
 		patterns = make([]string, len(node.Content))
 		for i, n := range node.Content {
 			if n.Kind != yaml.ScalarNode {
-				return nil, fmt.Errorf("invalid glob pattern: %v", n.Value)
+				return nil, errors.Errorf("invalid glob pattern: %v", n.Value)
 			}
 			patterns[i] = n.Value
 		}
@@ -111,7 +110,7 @@ func (ei *Interpreter) handleIncludeGlob(node *yaml.Node) (*yaml.Node, error) {
 	for _, pattern := range patterns {
 		matches, err := filepath.Glob(pattern)
 		if err != nil {
-			return nil, fmt.Errorf("error in globbing pattern: %v", err)
+			return nil, errors.Wrap(err, "error in globbing pattern")
 		}
 		for _, match := range matches {
 			includedNodes, err := ei.loadYaml(match)
@@ -137,7 +136,7 @@ func (ei *Interpreter) handleIncludeText(node *yaml.Node) (*yaml.Node, error) {
 	filePath := node.Value
 	fileContent, err := os.ReadFile(filePath)
 	if err != nil {
-		return nil, fmt.Errorf("error reading file for !IncludeText: %v", err)
+		return nil, errors.Wrap(err, "error reading file for !IncludeText")
 	}
 
 	return makeString(string(fileContent)), nil

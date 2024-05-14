@@ -1,7 +1,6 @@
 package emrichen
 
 import (
-	"fmt"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
 	"reflect"
@@ -167,7 +166,7 @@ func (ei *Interpreter) handleOp(node *yaml.Node) (*yaml.Node, error) {
 		return makeBool(!r), nil
 
 	default:
-		return nil, fmt.Errorf("unsupported operator: %s", opNode.Value)
+		return nil, errors.Errorf("unsupported operator: %s", opNode.Value)
 	}
 }
 

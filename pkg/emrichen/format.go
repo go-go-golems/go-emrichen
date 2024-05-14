@@ -3,6 +3,7 @@ package emrichen
 import (
 	"bytes"
 	"fmt"
+	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
 	"regexp"
 	"strings"
@@ -24,7 +25,7 @@ func (ei *Interpreter) renderFormatString(formatString string) (string, error) {
 	// Transform the template to the Go template format.
 	formatString, err := transformTemplate(formatString)
 	if err != nil {
-		return "", errors.Errorf("error transforming template: %v", err)
+		return "", errors.Wrap(err, "error transforming template")
 	}
 
 	tmpl := template.New("format")
@@ -58,7 +59,7 @@ func (ei *Interpreter) renderFormatString(formatString string) (string, error) {
 	)
 	tmpl, err = tmpl.Parse(formatString)
 	if err != nil {
-		return "", errors.Errorf("error parsing format string: %v", err)
+		return "", errors.Wrap(err, "error parsing format string")
 	}
 
 	var formatted bytes.Buffer
@@ -69,7 +70,7 @@ func (ei *Interpreter) renderFormatString(formatString string) (string, error) {
 	}
 
 	if err := tmpl.Execute(&formatted, vars); err != nil {
-		return "", fmt.Errorf("error executing format template: %v", err)
+		return "", errors.Wrap(err, "error executing format template")
 	}
 
 	return formatted.String(), nil

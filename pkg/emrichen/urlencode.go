@@ -19,7 +19,7 @@ func (ei *Interpreter) handleURLEncode(node *yaml.Node) (*yaml.Node, error) {
 
 		parsedURL, err := url.Parse(urlStr)
 		if err != nil {
-			return nil, fmt.Errorf("error parsing URL in !URLEncode: %v", err)
+			return nil, errors.Wrap(err, "error parsing URL in !URLEncode")
 		}
 
 		query := parsedURL.Query()
