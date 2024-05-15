@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+pwd
+cat README.md
