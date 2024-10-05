@@ -75,6 +75,14 @@ func TestEmrichenVarTag(t *testing.T) {
 			expected:  "null", // or the appropriate representation of null in your system
 			initVars:  map[string]interface{}{"nullVar": nil},
 		},
+
+		{
+			name:        "Var with JSON path-like expression",
+			inputYAML:   "!Var some.nested.path",
+			expected:    "", // The expected error message will be handled by the error check
+			initVars:    map[string]interface{}{"some": map[string]interface{}{"nested": map[string]string{"path": "value"}}},
+			expectError: true,
+		},
 	}
 
 	runTests(t, tests)

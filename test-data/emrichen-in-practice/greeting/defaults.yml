@@ -1,0 +1,5 @@
+!Defaults
+user:
+  firstName: Alice
+  lastName: Smith
+  isAdmin: false

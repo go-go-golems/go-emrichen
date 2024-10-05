@@ -91,9 +91,10 @@ func (ei *rawInterpretHelper) UnmarshalYAML(value *yaml.Node) error {
 	if err != nil {
 		return err
 	}
-	*ei.target = *resolved
+	if resolved != nil {
+		*ei.target = *resolved
+	}
 	return nil
-
 }
 
 func (ei *Interpreter) CreateDecoder(target interface{}) *interpretHelper {
