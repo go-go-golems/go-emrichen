@@ -19,6 +19,12 @@ builds:
       - darwin
 checksum:
   name_template: 'checksums.txt'
+
+signs:
+  - artifacts: checksum
+    # setup for github actions according to https://goreleaser.com/ci/actions/
+    args: [ "--batch", "-u", "{{ .Env.GPG_FINGERPRINT }}", "--output", "${signature}", "--detach-sign", "${artifact}" ]
+
 snapshot:
   name_template: "{{ incpatch .Version }}-next"
 changelog:
@@ -31,7 +37,7 @@ brews:
   - name: emrichen
     description: "emrichen is a go implementation of the template engine for YAML"
     homepage: "https://github.com/go-go-golems/go-emrichen"
-    tap:
+    repository:
       owner: go-go-golems
       name: homebrew-go-go-go
       token: "{{ .Env.TAP_GITHUB_TOKEN }}"
