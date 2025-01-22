@@ -1,0 +1,18 @@
+!Include "defaults.yml"
+---
+deployments: !Loop
+  over: !Var services
+  as: service
+  template: !Group
+    over: 
+      - name: !Var service.name
+        image: !Var service.image
+        replicas: !Var service.replicas
+        ports: !Var service.ports
+        environment: !Var environment
+    by: !Format "{name}_deployment"
+    template: !Merge
+      - { image: !Var image }
+      - { replicas: !Var replicas }
+      - { ports: !Var ports }
+      - { environment: !Var environment }

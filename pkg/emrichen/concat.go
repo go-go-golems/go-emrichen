@@ -16,6 +16,10 @@ func (ei *Interpreter) handleConcat(node *yaml.Node) (*yaml.Node, error) {
 		if err != nil {
 			return nil, err
 		}
+		// handle void
+		if resolvedListItem == nil {
+			continue
+		}
 		if resolvedListItem.Kind != yaml.SequenceNode {
 			return nil, errors.New("!Concat items must be sequences")
 		}

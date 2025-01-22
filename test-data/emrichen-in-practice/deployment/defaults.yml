@@ -1,0 +1,15 @@
+!Defaults
+environment: production
+services:
+  - name: frontend
+    image: frontend:latest
+    replicas: 3
+    ports: [80, 443]
+  - name: backend
+    image: backend:latest
+    replicas: 2
+    ports: [8080]
+  - name: cache
+    image: redis:alpine
+    replicas: 1
+    ports: [6379]

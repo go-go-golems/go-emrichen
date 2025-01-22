@@ -1,0 +1,10 @@
+!Defaults
+user:
+  firstName: Alice
+  lastName: Smith
+  isAdmin: false
+---
+greetingMessage: !If
+  test: !Var user.isAdmin
+  then: !Format "Welcome back, Admin {user.firstName} {user.lastName}!"
+  else: !Format "Hello, {user.firstName} {user.lastName}!"

@@ -1,0 +1,6 @@
+!Include "defaults.yml"
+---
+greetingMessage: !If
+  test: !Lookup user.isAdmin
+  then: !Format "Welcome back, Admin {user.firstName} {user.lastName}!"
+  else: !Format "Hello, {user.firstName} {user.lastName}!"

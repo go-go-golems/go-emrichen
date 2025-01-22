@@ -19,6 +19,74 @@ You can find detailed documentation for each tag in the [doc section](pkg/doc/ex
 as well as an exhaustive list of examples in [the examples yamls](test-data)
 and [in the go unit tests](pkg/emrichen/).
 
+## Overview of Emrichen
+
+### Introduction
+
+Emrichen is a powerful templating engine designed for generating YAML configurations with ease and precision. Built with Go, Emrichen offers flexibility and robustness to developers, enabling the dynamic creation of configuration files for a wide range of applications, including Kubernetes deployments, configuration management, and more.
+
+### Key Features
+
+- **Structured Templating**: Emrichen understands YAML's structure, reducing common pitfalls associated with text-based templating systems.
+- **Rich Tag Set**: A comprehensive set of tags allows for complex data manipulation, conditional logic, loops, and more.
+- **Variable Management**: Define default values and reuse variables throughout your templates effortlessly.
+- **Error Handling and Debugging**: Utilize tags like `!Error` and `!Debug` to manage errors and debug templates effectively.
+- **Extensibility**: Additional tags and template operators can be added programmatically, allowing for customization to fit specific needs.
+
+### Concise Examples
+
+#### Example 1: Basic Variable Substitution
+
+```yaml
+!Defaults
+name: John Doe
+---
+greeting: !Format "Hello, {name}!"
+```
+
+**Output:**
+
+```yaml
+greeting: "Hello, John Doe!"
+```
+
+#### Example 2: Conditional Logic with `!If`
+
+```yaml
+!Defaults
+isAdmin: true
+---
+accessLevel: !If
+  test: !Var isAdmin
+  then: "Full Access"
+  else: "Restricted Access"
+```
+
+**Output:**
+
+```yaml
+accessLevel: "Full Access"
+```
+
+#### Example 3: Looping with `!Loop`
+
+```yaml
+!Defaults
+ports: [80, 443]
+---
+containerPorts: !Loop
+  over: !Var ports
+  template: !Lookup "item"
+```
+
+**Output:**
+
+```yaml
+containerPorts:
+  - 80
+  - 443
+```
+
 ## Kubernetes Deployment Example
 
 Below is an example of a Kubernetes deployment template using Emrichen, showcasing advanced features such as conditional
@@ -131,360 +199,3 @@ Emrichen is a powerful template engine designed for generating YAML and JSON con
 
 This reference aims to provide a quick overview of the capabilities and parameters of each tag supported by Emrichen.
 For detailed examples and advanced usage, refer to the specific documentation for each tag.
-
-
-Below is a structured approach to documenting each Emrichen tag with a short description and an example. This format is designed to be concise yet informative, providing users with a quick understanding of each tag's functionality and usage.
-
-## `!All`
-
-Evaluates if all items in the iterable are truthy. Don't use `!And`, use `!All` instead.
-
-**Example:**
-```yaml
-allTrue: !All [true, true, true]
-```
-
-## `!Any`
-
-Evaluates if at least one item in the iterable is truthy. Don't use `!Or`, use `!Any` instead.
-
-**Example:**
-```yaml
-anyTrue: !Any [false, false, true]
-```
-
-## `!Base64`
-
-Encodes the given value into Base64.
-
-**Example:**
-```yaml
-encoded: !Base64 "Hello, World!"
-```
-
-## `!Concat`
-
-Concatenates lists.
-
-**Example:**
-```yaml
-concatenated: !Concat [[1, 2], [3, 4]]
-```
-
-## `!Debug`
-
-Outputs the value to stderr for debugging purposes.
-
-**Example:**
-```yaml
-debugged: !Debug "Debug this value"
-```
-
-## `!Defaults`
-
-Defines default values for variables.
-
-**Example:**
-```yaml
-!Defaults
-defaultVar: "Default Value"
----
-defaulted: !Var defaultVar
-```
-
-## `!Error`
-
-Outputs an error message and halts processing if encountered.
-
-**Example:**
-```yaml
-!Error "An error occurred"
-```
-
-## `!Exists`
-
-Checks for the existence of a path or variable.
-
-**Example:**
-```yaml
-existsVar: !Exists varName
-```
-
-## `!Filter`
-
-Filters elements based on a predicate.
-
-**Example:**
-```yaml
-filtered: !Filter {test: !Op {a: !Var item, op: ">", b: 5}, over: [4, 5, 6, 7]}
-```
-
-## `!Format`
-
-Formats a string using variables and expressions.
-
-**Example:**
-```yaml
-formatted: !Format "Hello, {name}!"
-```
-
-## `!Group`
-
-Groups items based on a key.
-
-**Example:**
-```yaml
-grouped: !Group {over: [item1, item2], by: !Var key}
-```
-
-## `!If`
-
-Conditional logic to return values based on a test.
-
-**Example:**
-```yaml
-conditional: !If {test: !Var condition, then: "Yes", else: "No"}
-```
-
-## `!Include`
-
-Includes and processes another template file.
-
-**Example:**
-```yaml
-included: !Include "path/to/template.yml"
-```
-
-## `!IncludeBase64`
-
-Includes a binary file as a Base64-encoded string.
-
-**Example:**
-```yaml
-includedBase64: !IncludeBase64 "path/to/file.bin"
-```
-
-## `!IncludeBinary`
-
-Includes the contents of a binary file.
-
-**Example:**
-```yaml
-includedBinary: !IncludeBinary "path/to/file.bin"
-```
-
-## `!IncludeGlob`
-
-Includes and processes multiple files matching glob patterns.
-
-**Example:**
-```yaml
-includedGlob: !IncludeGlob "configs/*.yml"
-```
-
-## `!IncludeText`
-
-Includes the contents of a text file.
-
-**Example:**
-```yaml
-includedText: !IncludeText "path/to/text.txt"
-```
-
-## `!Index`
-
-Creates a dictionary out of a list based on a key.
-
-**Example:**
-```yaml
-indexed: !Index {over: [item1, item2], by: !Var key}
-```
-
-## `!IsBoolean`
-
-Checks if the value is a boolean.
-
-**Example:**
-```yaml
-isBoolean: !IsBoolean true
-```
-
-## `!IsDict`
-
-Checks if the value is a dictionary.
-
-**Example:**
-```yaml
-isDict: !IsDict {key: "value"}
-```
-
-## `!IsInteger`
-
-Checks if the value is an integer.
-
-**Example:**
-```yaml
-isInteger: !IsInteger 42
-```
-
-## `!IsList`
-
-Checks if the value is a list.
-
-**Example:**
-```yaml
-isList: !IsList [1, 2, 3]
-```
-
-## `!IsNone`
-
-Checks if the value is `None` (null).
-
-**Example:**
-```yaml
-isNone: !IsNone null
-```
-
-## `!IsNumber`
-
-Checks if the value is a number.
-
-**Example:**
-```yaml
-isNumber: !IsNumber 3.14
-```
-
-## `!IsString`
-
-Checks if the value is a string.
-
-**Example:**
-```yaml
-isString: !IsString "Hello"
-```
-
-## `!Join`
-
-Joins a list of items with a separator.
-
-**Example:**
-```yaml
-joined: !Join {items: [hello, world], separator: ", "}
-```
-
-## `!Lookup`
-
-Performs a JSONPath lookup.
-
-**Example:**
-```yaml
-lookup: !Lookup "path.to.value"
-```
-
-## `!LookupAll`
-
-Performs a JSONPath lookup, returning all matches.
-
-**Example:**
-```yaml
-lookupAll: !LookupAll "path.to.values[*]"
-```
-
-## `!Loop`
-
-Loops over a list or dict, applying a template to each item.
-
-**Example:**
-```yaml
-looped: !Loop {over: [1, 2, 3], template: !Format "Number: {item}"}
-```
-
-## `!MD5`
-
-Hashes the given data using the MD5 algorithm.
-
-**Example:**
-```yaml
-hashedMD5: !MD5 "data to hash"
-```
-
-## `!Merge`
-
-Merges dictionaries, with later values overriding earlier ones.
-
-**Example:**
-```yaml
-merged: !Merge [{a: 1}, {b: 2}]
-```
-
-## `!Not`
-
-Negates a boolean value.
-
-**Example:**
-```yaml
-negated: !Not true
-```
-
-## `!Op`
-
-Performs a binary operation between two values.
-
-**Example:**
-```yaml
-operation: !Op {a: 5, op: "+", b: 3}
-```
-
-## `!SHA1`
-
-Hashes the given data using the SHA1 algorithm.
-
-**Example:**
-```yaml
-hashedSHA1: !SHA1 "data to hash"
-```
-
-## `!SHA256`
-
-Hashes the given data using the SHA256 algorithm.
-
-**Example:**
-```yaml
-hashedSHA256: !SHA256 "data to hash"
-```
-
-## `!URLEncode`
-
-Encodes a string for URL inclusion or combines a URL with query parameters.
-
-**Example:**
-```yaml
-urlEncoded: !URLEncode "string to encode"
-```
-
-## `!Var`
-
-Substitutes the value of a variable.
-
-**Example:**
-```yaml
-variable: !Var variableName
-```
-
-## `!Void`
-
-Used to remove items from the output.
-
-**Example:**
-```yaml
-voided: !Void
-```
-
-## `!With`
-
-Defines a scope with local variables for a template.
-
-**Example:**
-```yaml
-withScope: !With {vars: {localVar: "Local Value"}, template: !Var localVar}
-```
