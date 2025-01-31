@@ -10,7 +10,7 @@ func (ei *Interpreter) handleFilter(node *yaml.Node) (*yaml.Node, error) {
 		return nil, errors.New("!Filter requires a mapping node")
 	}
 
-	args, err := ei.parseArgs(node, []parsedVariable{
+	args, err := ei.ParseArgs(node, []ParsedVariable{
 		{Name: "over", Required: true, Expand: true},
 		{Name: "test"},
 		{Name: "as"},

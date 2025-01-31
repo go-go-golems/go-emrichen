@@ -1,9 +1,10 @@
 package emrichen
 
 import (
+	"strings"
+
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
-	"strings"
 )
 
 func (ei *Interpreter) handleJoin(node *yaml.Node) (*yaml.Node, error) {
@@ -11,7 +12,7 @@ func (ei *Interpreter) handleJoin(node *yaml.Node) (*yaml.Node, error) {
 	itemsNode := node
 
 	if node.Kind == yaml.MappingNode {
-		args, err := ei.parseArgs(node, []parsedVariable{
+		args, err := ei.ParseArgs(node, []ParsedVariable{
 			// don't expand items here yet
 			{Name: "items", Required: true, Expand: true},
 			{Name: "separator", Expand: true},
