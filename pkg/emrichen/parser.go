@@ -11,6 +11,36 @@ type parsedVariable struct {
 	Required bool
 }
 
+// parseArgs processes a YAML mapping node according to a list of variable specifications.
+// It's a core utility function used by various Emrichen tags to parse their arguments
+// in a consistent way.
+//
+// Parameters:
+// - node: A pointer to a yaml.Node that must be a mapping node containing key-value pairs
+// - variables: A slice of parsedVariable structs that specify:
+//   - Name: The expected argument name
+//   - Required: Whether the argument must be present
+//   - Expand: Whether to process the value through the Emrichen interpreter
+//
+// Returns:
+// - map[string]*yaml.Node: A map of processed arguments where:
+//   - Keys are the argument names
+//   - Values are the processed YAML nodes (expanded if specified)
+//
+// - error: Returns an error if:
+//   - The input node is not a mapping node
+//   - An unknown argument key is encountered
+//   - A required argument is missing
+//   - A key is not a scalar value
+//   - Value expansion fails
+//
+// Example usage:
+//
+//	args, err := ei.parseArgs(node, []parsedVariable{
+//	  {Name: "test", Required: true, Expand: true},
+//	  {Name: "then", Required: true, Expand: false},
+//	  {Name: "else", Required: false, Expand: false},
+//	})
 func (ei *Interpreter) parseArgs(
 	node *yaml.Node,
 	variables []parsedVariable,

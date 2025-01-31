@@ -7,17 +7,18 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"fmt"
-	"github.com/go-go-golems/go-emrichen/pkg/env"
-	"github.com/pkg/errors"
-	"gopkg.in/yaml.v3"
 	"strconv"
 	"strings"
 	"text/template"
+
+	"github.com/go-go-golems/go-emrichen/pkg/env"
+	"github.com/pkg/errors"
+	"gopkg.in/yaml.v3"
 )
 
 type Interpreter struct {
 	env            *env.Env
-	additionalTags map[string]func(node *yaml.Node) (*yaml.Node, error)
+	additionalTags map[string]TagFunc
 	funcmaps       []template.FuncMap
 }
 
@@ -37,7 +38,179 @@ func WithFuncMap(funcmap ...template.FuncMap) InterpreterOption {
 	}
 }
 
-func WithAdditionalTags(tags map[string]func(node *yaml.Node) (*yaml.Node, error)) InterpreterOption {
+type TagFunc func(ei *Interpreter, node *yaml.Node) (*yaml.Node, error)
+type TagFuncMap map[string]TagFunc
+
+var defaultHandlers = TagFuncMap{
+	"!Defaults": func(ei *Interpreter, node *yaml.Node) (*yaml.Node, error) {
+		if node.Kind == yaml.MappingNode {
+			err := ei.updateVars(node.Content)
+			if err != nil {
+				return nil, err
+			}
+		}
+		return nil, nil
+	},
+	"!All": func(ei *Interpreter, node *yaml.Node) (*yaml.Node, error) {
+		return ei.handleAll(node)
+	},
+	"!Any": func(ei *Interpreter, node *yaml.Node) (*yaml.Node, error) {
+		return ei.handleAny(node)
+	},
+	"!Base64": func(ei *Interpreter, node *yaml.Node) (*yaml.Node, error) {
+		if node.Kind != yaml.ScalarNode {
+			return nil, errors.New("!Base64 requires a scalar value")
+		}
+		return makeString(base64.StdEncoding.EncodeToString([]byte(node.Value))), nil
+	},
+	"!Concat": func(ei *Interpreter, node *yaml.Node) (*yaml.Node, error) {
+		return ei.handleConcat(node)
+	},
+	"!Debug": func(ei *Interpreter, node *yaml.Node) (*yaml.Node, error) {
+		// need to remove debug tag
+		switch node.Kind {
+		case yaml.SequenceNode:
+			node.Tag = "!!seq"
+		case yaml.MappingNode:
+			node.Tag = "!!map"
+		case yaml.ScalarNode:
+			node.Tag = "!!str"
+		case yaml.DocumentNode:
+			node.Tag = "!!doc"
+		case yaml.AliasNode:
+			node.Tag = "!!alias"
+		}
+		v, err := ei.Process(node)
+		if err != nil {
+			return nil, err
+		}
+		toInterface, _ := NodeToInterface(v)
+		fmt.Printf("DEBUG: %s\n", toInterface)
+		return v, nil
+	},
+	"!Error": func(ei *Interpreter, node *yaml.Node) (*yaml.Node, error) {
+		if node.Kind != yaml.ScalarNode {
+			return nil, errors.New("!Error tag requires a scalar value for the error message")
+		}
+		errorString, err := ei.renderFormatString(node.Value)
+		if err != nil {
+			return nil, err
+		}
+		return nil, errors.New(errorString)
+	},
+	"!Exists": func(ei *Interpreter, node *yaml.Node) (*yaml.Node, error) {
+		return ei.handleExists(node)
+	},
+	"!Format": func(ei *Interpreter, node *yaml.Node) (*yaml.Node, error) {
+		return ei.handleFormat(node)
+	},
+	"!Filter": func(ei *Interpreter, node *yaml.Node) (*yaml.Node, error) {
+		return ei.handleFilter(node)
+	},
+	"!Group": func(ei *Interpreter, node *yaml.Node) (*yaml.Node, error) {
+		return ei.handleGroup(node)
+	},
+	"!If": func(ei *Interpreter, node *yaml.Node) (*yaml.Node, error) {
+		return ei.handleIf(node)
+	},
+	"!Include": func(ei *Interpreter, node *yaml.Node) (*yaml.Node, error) {
+		return ei.handleInclude(node)
+	},
+	"!IncludeBase64": func(ei *Interpreter, node *yaml.Node) (*yaml.Node, error) {
+		return ei.handleIncludeBase64(node)
+	},
+	"!IncludeBinary": func(ei *Interpreter, node *yaml.Node) (*yaml.Node, error) {
+		return ei.handleIncludeBinary(node)
+	},
+	"!IncludeGlob": func(ei *Interpreter, node *yaml.Node) (*yaml.Node, error) {
+		return ei.handleIncludeGlob(node)
+	},
+	"!IncludeText": func(ei *Interpreter, node *yaml.Node) (*yaml.Node, error) {
+		return ei.handleIncludeText(node)
+	},
+	"!Index": func(ei *Interpreter, node *yaml.Node) (*yaml.Node, error) {
+		return ei.handleIndex(node)
+	},
+	"!IsBoolean": func(ei *Interpreter, node *yaml.Node) (*yaml.Node, error) {
+		return makeBool(node.Kind == yaml.ScalarNode && (node.Value == "true" || node.Value == "false")), nil
+	},
+	"!IsDict": func(ei *Interpreter, node *yaml.Node) (*yaml.Node, error) {
+		return makeBool(node.Kind == yaml.MappingNode), nil
+	},
+	"!IsInteger": func(ei *Interpreter, node *yaml.Node) (*yaml.Node, error) {
+		_, err := strconv.Atoi(node.Value)
+		return makeBool(err == nil && node.Kind == yaml.ScalarNode), nil
+	},
+	"!IsList": func(ei *Interpreter, node *yaml.Node) (*yaml.Node, error) {
+		return makeBool(node.Kind == yaml.SequenceNode), nil
+	},
+	"!IsNone": func(ei *Interpreter, node *yaml.Node) (*yaml.Node, error) {
+		return makeBool(node.Tag == "!!null" || node.Value == "null"), nil
+	},
+	"!IsNumber": func(ei *Interpreter, node *yaml.Node) (*yaml.Node, error) {
+		_, err := strconv.ParseFloat(node.Value, 64)
+		return makeBool(err == nil && node.Kind == yaml.ScalarNode), nil
+	},
+	"!IsString": func(ei *Interpreter, node *yaml.Node) (*yaml.Node, error) {
+		return makeBool(node.Kind == yaml.ScalarNode), nil
+	},
+	"!Join": func(ei *Interpreter, node *yaml.Node) (*yaml.Node, error) {
+		return ei.handleJoin(node)
+	},
+	"!Loop": func(ei *Interpreter, node *yaml.Node) (*yaml.Node, error) {
+		return ei.handleLoop(node)
+	},
+	"!Lookup": func(ei *Interpreter, node *yaml.Node) (*yaml.Node, error) {
+		return ei.handleLookup(node)
+	},
+	"!LookupAll": func(ei *Interpreter, node *yaml.Node) (*yaml.Node, error) {
+		return ei.handleLookupAll(node)
+	},
+	"!MD5": func(ei *Interpreter, node *yaml.Node) (*yaml.Node, error) {
+		if node.Kind != yaml.ScalarNode {
+			return nil, errors.New("!MD5 requires a scalar value")
+		}
+		hash := md5.Sum([]byte(node.Value))
+		return makeString(hex.EncodeToString(hash[:])), nil
+	},
+	"!Merge": func(ei *Interpreter, node *yaml.Node) (*yaml.Node, error) {
+		return ei.handleMerge(node)
+	},
+	"!Not": func(ei *Interpreter, node *yaml.Node) (*yaml.Node, error) {
+		return ei.handleNot(node)
+	},
+	"!Op": func(ei *Interpreter, node *yaml.Node) (*yaml.Node, error) {
+		return ei.handleOp(node)
+	},
+	"!SHA1": func(ei *Interpreter, node *yaml.Node) (*yaml.Node, error) {
+		if node.Kind != yaml.ScalarNode {
+			return nil, errors.New("!SHA1 requires a scalar value")
+		}
+		hash := sha1.Sum([]byte(node.Value))
+		return makeString(hex.EncodeToString(hash[:])), nil
+	},
+	"!SHA256": func(ei *Interpreter, node *yaml.Node) (*yaml.Node, error) {
+		if node.Kind != yaml.ScalarNode {
+			return nil, errors.New("!SHA256 requires a scalar value")
+		}
+		hash := sha256.Sum256([]byte(node.Value))
+		return makeString(hex.EncodeToString(hash[:])), nil
+	},
+	"!Var": func(ei *Interpreter, node *yaml.Node) (*yaml.Node, error) {
+		return ei.handleVar(node)
+	},
+	"!URLEncode": func(ei *Interpreter, node *yaml.Node) (*yaml.Node, error) {
+		return ei.handleURLEncode(node)
+	},
+	"!Void": func(ei *Interpreter, node *yaml.Node) (*yaml.Node, error) {
+		return nil, nil
+	},
+	"!With": func(ei *Interpreter, node *yaml.Node) (*yaml.Node, error) {
+		return ei.handleWith(node)
+	},
+}
+
+func WithAdditionalTags(tags TagFuncMap) InterpreterOption {
 	return func(ei *Interpreter) error {
 		for k, v := range tags {
 			if _, ok := ei.additionalTags[k]; ok {
@@ -52,7 +225,12 @@ func WithAdditionalTags(tags map[string]func(node *yaml.Node) (*yaml.Node, error
 func NewInterpreter(options ...InterpreterOption) (*Interpreter, error) {
 	ret := &Interpreter{
 		env:            env.NewEnv(),
-		additionalTags: map[string]func(node *yaml.Node) (*yaml.Node, error){},
+		additionalTags: map[string]TagFunc{},
+	}
+
+	// Copy default handlers
+	for k, v := range defaultHandlers {
+		ret.additionalTags[k] = v
 	}
 
 	for _, option := range options {
@@ -115,7 +293,10 @@ func (ei *Interpreter) RegisterTag(tag string, f func(node *yaml.Node) (*yaml.No
 	if _, ok := ei.additionalTags[tag]; ok {
 		return errors.Errorf("tag %s already exists", tag)
 	}
-	ei.additionalTags[tag] = f
+	// Wrap the old-style function to match the new signature
+	ei.additionalTags[tag] = func(ei_ *Interpreter, node *yaml.Node) (*yaml.Node, error) {
+		return f(node)
+	}
 	return nil
 }
 
@@ -166,180 +347,10 @@ func (ei *Interpreter) Process(node *yaml.Node) (*yaml.Node, error) {
 		ret, err := func() (*yaml.Node, error) {
 			// we allow overriding our own tags
 			if f, ok := ei.additionalTags[verb]; ok {
-				return f(node)
+				return f(ei, node)
 			}
 
-			//exhaustive:ignore
-			switch verb {
-			case "!Defaults":
-				if node.Kind == yaml.MappingNode {
-					err := ei.updateVars(node.Content)
-					if err != nil {
-						return nil, err
-					}
-				}
-				return nil, nil
-
-			case "!All":
-				return ei.handleAll(node)
-			case "!Any":
-				return ei.handleAny(node)
-
-			case "!Base64":
-				if node.Kind != yaml.ScalarNode {
-					return nil, errors.New("!Base64 requires a scalar value")
-				}
-				return makeString(base64.StdEncoding.EncodeToString([]byte(node.Value))), nil
-
-			case "!Concat":
-				return ei.handleConcat(node)
-
-			case "!Debug":
-				// need to remove debug tag
-				switch node.Kind {
-				case yaml.SequenceNode:
-					node.Tag = "!!seq"
-				case yaml.MappingNode:
-					node.Tag = "!!map"
-				case yaml.ScalarNode:
-					node.Tag = "!!str"
-				case yaml.DocumentNode:
-					node.Tag = "!!doc"
-				case yaml.AliasNode:
-					node.Tag = "!!alias"
-				}
-				v, err := ei.Process(node)
-				if err != nil {
-					return nil, err
-				}
-				toInterface, _ := NodeToInterface(v)
-				fmt.Printf("DEBUG: %s\n", toInterface)
-				return v, nil
-
-			case "!Error":
-				if node.Kind != yaml.ScalarNode {
-					return nil, errors.New("!Error tag requires a scalar value for the error message")
-				}
-				errorString, err := ei.renderFormatString(node.Value)
-				if err != nil {
-					return nil, err
-				}
-				return nil, errors.New(errorString)
-
-			case "!Exists":
-				return ei.handleExists(node)
-
-			case "!Format":
-				return ei.handleFormat(node)
-
-			case "!Filter":
-				return ei.handleFilter(node)
-
-			case "!Group":
-				return ei.handleGroup(node)
-
-			case "!If":
-				return ei.handleIf(node)
-
-			case "!Include":
-				return ei.handleInclude(node)
-
-			case "!IncludeBase64":
-				return ei.handleIncludeBase64(node)
-
-			case "!IncludeBinary":
-				return ei.handleIncludeBinary(node)
-
-			case "!IncludeGlob":
-				return ei.handleIncludeGlob(node)
-
-			case "!IncludeText":
-				return ei.handleIncludeText(node)
-
-			case "!Index":
-				return ei.handleIndex(node)
-
-			case "!IsBoolean":
-				return makeBool(node.Kind == yaml.ScalarNode && (node.Value == "true" || node.Value == "false")), nil
-
-			case "!IsDict":
-				return makeBool(node.Kind == yaml.MappingNode), nil
-
-			case "!IsInteger":
-				_, err := strconv.Atoi(node.Value)
-				return makeBool(err == nil && node.Kind == yaml.ScalarNode), nil
-
-			case "!IsList":
-				return makeBool(node.Kind == yaml.SequenceNode), nil
-
-			case "!IsNone":
-				return makeBool(node.Tag == "!!null" || node.Value == "null"), nil
-
-			case "!IsNumber":
-				_, err := strconv.ParseFloat(node.Value, 64)
-				return makeBool(err == nil && node.Kind == yaml.ScalarNode), nil
-
-			case "!IsString":
-				return makeBool(node.Kind == yaml.ScalarNode), nil
-
-			case "!Join":
-				return ei.handleJoin(node)
-
-			case "!Loop":
-				return ei.handleLoop(node)
-
-			case "!Lookup":
-				return ei.handleLookup(node)
-
-			case "!LookupAll":
-				return ei.handleLookupAll(node)
-
-			case "!MD5":
-				if node.Kind != yaml.ScalarNode {
-					return nil, errors.New("!MD5 requires a scalar value")
-				}
-				hash := md5.Sum([]byte(node.Value))
-				return makeString(hex.EncodeToString(hash[:])), nil
-
-			case "!Merge":
-				return ei.handleMerge(node)
-
-			case "!Not":
-				return ei.handleNot(node)
-
-			case "!Op":
-				return ei.handleOp(node)
-
-			case "!SHA1":
-				if node.Kind != yaml.ScalarNode {
-					return nil, errors.New("!SHA1 requires a scalar value")
-				}
-				hash := sha1.Sum([]byte(node.Value))
-				return makeString(hex.EncodeToString(hash[:])), nil
-
-			case "!SHA256":
-				if node.Kind != yaml.ScalarNode {
-					return nil, errors.New("!SHA256 requires a scalar value")
-				}
-				hash := sha256.Sum256([]byte(node.Value))
-				return makeString(hex.EncodeToString(hash[:])), nil
-
-			case "!Var":
-				return ei.handleVar(node)
-
-			case "!URLEncode":
-				return ei.handleURLEncode(node)
-
-			case "!Void":
-				return nil, nil
-
-			case "!With":
-				return ei.handleWith(node)
-
-			default:
-			}
-
-			// TODO(manuel, 2024-01-25) This is where we need to handle void in sequences and mappings
+			// If no handler is found, process the node based on its kind
 			switch node.Kind {
 			case yaml.SequenceNode:
 				retContent := make([]*yaml.Node, 0)

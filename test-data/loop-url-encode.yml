@@ -18,5 +18,5 @@ query_map:
   template: !Loop
     over: !Var encoded_urls
     as: url_info
-    template: !Format "Url: {{url_with_query}}"
+    template: !Format "Url: {{.url_info.url_with_query}}"
 
