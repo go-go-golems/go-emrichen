@@ -1,9 +1,9 @@
 !Defaults
 name: John
 age: 30
-
+---
 person:
   name: !Var name
   age: !Var age
-  greeting: !Format "Hello, {{.name})! You are {{.age}} years old."
+  greeting: !Format "Hello, {{.name}}! You are {{.age}} years old."
 

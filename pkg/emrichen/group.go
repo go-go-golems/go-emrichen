@@ -2,6 +2,7 @@ package emrichen
 
 import (
 	"fmt"
+
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
 )
@@ -11,7 +12,7 @@ func (ei *Interpreter) handleGroup(node *yaml.Node) (*yaml.Node, error) {
 		return nil, errors.New("!Group requires a mapping node")
 	}
 
-	args, err := ei.parseArgs(node, []parsedVariable{
+	args, err := ei.ParseArgs(node, []ParsedVariable{
 		{Name: "over", Required: true, Expand: true},
 		{Name: "by", Required: true},
 		{Name: "template"},

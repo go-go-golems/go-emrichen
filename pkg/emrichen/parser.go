@@ -5,22 +5,52 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-type parsedVariable struct {
+type ParsedVariable struct {
 	Name     string
 	Expand   bool
 	Required bool
 }
 
-func (ei *Interpreter) parseArgs(
+// ParseArgs processes a YAML mapping node according to a list of variable specifications.
+// It's a core utility function used by various Emrichen tags to parse their arguments
+// in a consistent way.
+//
+// Parameters:
+// - node: A pointer to a yaml.Node that must be a mapping node containing key-value pairs
+// - variables: A slice of parsedVariable structs that specify:
+//   - Name: The expected argument name
+//   - Required: Whether the argument must be present
+//   - Expand: Whether to process the value through the Emrichen interpreter
+//
+// Returns:
+// - map[string]*yaml.Node: A map of processed arguments where:
+//   - Keys are the argument names
+//   - Values are the processed YAML nodes (expanded if specified)
+//
+// - error: Returns an error if:
+//   - The input node is not a mapping node
+//   - An unknown argument key is encountered
+//   - A required argument is missing
+//   - A key is not a scalar value
+//   - Value expansion fails
+//
+// Example usage:
+//
+//	args, err := ei.ParseArgs(node, []parsedVariable{
+//	  {Name: "test", Required: true, Expand: true},
+//	  {Name: "then", Required: true, Expand: false},
+//	  {Name: "else", Required: false, Expand: false},
+//	})
+func (ei *Interpreter) ParseArgs(
 	node *yaml.Node,
-	variables []parsedVariable,
+	variables []ParsedVariable,
 ) (map[string]*yaml.Node, error) {
 	argsMap := make(map[string]*yaml.Node)
 	if node.Kind != yaml.MappingNode {
 		return nil, errors.New("expected a mapping node")
 	}
 
-	varMap := make(map[string]parsedVariable)
+	varMap := make(map[string]ParsedVariable)
 	for _, v := range variables {
 		varMap[v.Name] = v
 	}
@@ -71,7 +101,7 @@ func (ei *Interpreter) parseArgs(
 //
 // Note: The 'query' parameter is optional and can be a mapping node containing key-value pairs of query parameters.
 func (ei *Interpreter) parseURLEncodeArgs(node *yaml.Node) (string, map[string]interface{}, error) {
-	args, err := ei.parseArgs(node, []parsedVariable{
+	args, err := ei.ParseArgs(node, []ParsedVariable{
 		{Name: "url", Required: true, Expand: true},
 		{Name: "query", Expand: true},
 	})

@@ -1,15 +1,16 @@
 package emrichen
 
 import (
-	"github.com/pkg/errors"
-	"gopkg.in/yaml.v3"
 	"reflect"
 	"regexp"
 	"strings"
+
+	"github.com/pkg/errors"
+	"gopkg.in/yaml.v3"
 )
 
 func (ei *Interpreter) handleOp(node *yaml.Node) (*yaml.Node, error) {
-	args, err := ei.parseArgs(node, []parsedVariable{
+	args, err := ei.ParseArgs(node, []ParsedVariable{
 		{Name: "op", Required: true, Expand: true},
 		{Name: "a", Required: true, Expand: true},
 		{Name: "b", Required: true, Expand: true},

@@ -2,13 +2,14 @@ package emrichen
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
-	"os"
 )
 
 func (ei *Interpreter) handleIndex(node *yaml.Node) (*yaml.Node, error) {
-	args, err := ei.parseArgs(node, []parsedVariable{
+	args, err := ei.ParseArgs(node, []ParsedVariable{
 		{Name: "over", Required: true, Expand: true},
 		{Name: "by", Required: true},
 		{Name: "template"},
