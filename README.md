@@ -199,3 +199,94 @@ Emrichen is a powerful template engine designed for generating YAML and JSON con
 
 This reference aims to provide a quick overview of the capabilities and parameters of each tag supported by Emrichen.
 For detailed examples and advanced usage, refer to the specific documentation for each tag.
+
+## VSCode Configuration for Emrichen Tags
+
+To use Emrichen tags in your YAML files with proper syntax highlighting and validation in Visual Studio Code, you need to configure the YAML extension to recognize these custom tags. This helps prevent false error highlighting and provides a better editing experience.
+
+### Configuring Custom Tags in VSCode
+
+Add the following configuration to your VSCode `settings.json` file:
+
+```json
+"yaml.customTags": [
+  "!And sequence",
+  "!All scalar",
+  "!Any scalar",
+  "!Base64 scalar",
+  "!Concat sequence",
+  "!Debug scalar",
+  "!Debug mapping",
+  "!Defaults mapping",
+  "!Error scalar",
+  "!Exists scalar",
+  "!Filter mapping",
+  "!Format scalar",
+  "!Group mapping",
+  "!If mapping",
+  "!Include scalar",
+  "!IncludeBase64 scalar",
+  "!IncludeBinary scalar",
+  "!IncludeGlob scalar",
+  "!IncludeGlob sequence",
+  "!IncludeText scalar",
+  "!Index mapping",
+  "!IsBoolean scalar",
+  "!IsDict scalar",
+  "!IsInteger scalar",
+  "!IsList scalar",
+  "!IsNone scalar",
+  "!IsNumber scalar",
+  "!IsString scalar",
+  "!Join scalar",
+  "!Join mapping",
+  "!Lookup scalar",
+  "!LookupAll scalar",
+  "!Loop mapping",
+  "!MD5 scalar",
+  "!Merge sequence",
+  "!Not scalar",
+  "!Op mapping",
+  "!SHA1 scalar",
+  "!SHA256 scalar",
+  "!URLEncode scalar",
+  "!URLEncode mapping",
+  "!Var scalar",
+  "!Void",
+  "!With mapping"
+]
+```
+
+### Tag Types Explained
+
+Each tag in the configuration is followed by its expected node type:
+
+- `scalar`: For tags that operate on a single value (string, number, boolean)
+- `mapping`: For tags that operate on key-value pairs (objects)
+- `sequence`: For tags that operate on lists or arrays
+- No type: For tags that don't take any arguments (like `!Void`)
+
+### Combined Tags
+
+Emrichen also supports combined tags using the comma syntax. To enable proper highlighting for these combinations, you can add common combinations to your configuration:
+
+```json
+"yaml.customTags": [
+  // ... existing tags ...
+  "!Var,Format scalar",
+  "!Var,Join scalar",
+  "!Var,Not scalar",
+  "!Lookup,Format scalar",
+  "!IsNone,Var scalar",
+  "!Not,Exists scalar"
+]
+```
+
+### Accessing VSCode Settings
+
+1. Open VSCode Settings (File > Preferences > Settings or `Ctrl+,`)
+2. Search for "yaml.customTags"
+3. Click on "Edit in settings.json"
+4. Add the configuration above within the settings object
+
+This configuration ensures that VSCode properly recognizes all Emrichen tags, providing appropriate syntax highlighting and preventing false validation errors when working with Emrichen YAML templates.
