@@ -54,7 +54,13 @@ var defaultHandlers = TagFuncMap{
 	"!All": func(ei *Interpreter, node *yaml.Node) (*yaml.Node, error) {
 		return ei.handleAll(node)
 	},
+	"!And": func(ei *Interpreter, node *yaml.Node) (*yaml.Node, error) {
+		return ei.handleAll(node)
+	},
 	"!Any": func(ei *Interpreter, node *yaml.Node) (*yaml.Node, error) {
+		return ei.handleAny(node)
+	},
+	"!Or": func(ei *Interpreter, node *yaml.Node) (*yaml.Node, error) {
 		return ei.handleAny(node)
 	},
 	"!Base64": func(ei *Interpreter, node *yaml.Node) (*yaml.Node, error) {
