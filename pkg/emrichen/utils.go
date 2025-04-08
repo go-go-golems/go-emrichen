@@ -1,9 +1,11 @@
 package emrichen
 
 import (
-	"github.com/pkg/errors"
+	"math"
 	"reflect"
 	"strconv"
+
+	"github.com/pkg/errors"
 
 	"gopkg.in/yaml.v3"
 )
@@ -167,7 +169,11 @@ func ValueToNode(value interface{}) (*yaml.Node, error) {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		return makeInt(int(v.Int())), nil
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-		return makeInt(int(v.Uint())), nil
+		u := v.Uint()
+		if u > uint64(math.MaxInt) {
+			return nil, errors.Errorf("uint64 value %d exceeds max int", u)
+		}
+		return makeInt(int(u)), nil
 	case reflect.Float32, reflect.Float64:
 		return makeFloat(v.Float()), nil
 	case reflect.Bool:
@@ -289,9 +295,10 @@ func findWithNodes(content []*yaml.Node) (*yaml.Node, *yaml.Node) {
 		keyNode := content[i]
 		valueNode := content[i+1]
 		if keyNode.Kind == yaml.ScalarNode {
-			if keyNode.Value == "vars" {
+			switch keyNode.Value {
+			case "vars":
 				varsNode = valueNode
-			} else if keyNode.Value == "template" {
+			case "template":
 				templateNode = valueNode
 			}
 		}

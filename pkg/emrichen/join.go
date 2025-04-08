@@ -11,7 +11,8 @@ func (ei *Interpreter) handleJoin(node *yaml.Node) (*yaml.Node, error) {
 	separator := " " // Default separator
 	itemsNode := node
 
-	if node.Kind == yaml.MappingNode {
+	switch node.Kind {
+	case yaml.MappingNode:
 		args, err := ei.ParseArgs(node, []ParsedVariable{
 			// don't expand items here yet
 			{Name: "items", Required: true, Expand: true},
@@ -30,7 +31,7 @@ func (ei *Interpreter) handleJoin(node *yaml.Node) (*yaml.Node, error) {
 		if sepNode, ok := args["separator"]; ok && sepNode.Kind == yaml.ScalarNode {
 			separator = sepNode.Value
 		}
-	} else if node.Kind == yaml.SequenceNode {
+	case yaml.SequenceNode:
 		itemsNode = &yaml.Node{
 			Kind:    yaml.SequenceNode,
 			Content: node.Content,
@@ -41,6 +42,10 @@ func (ei *Interpreter) handleJoin(node *yaml.Node) (*yaml.Node, error) {
 		if err != nil {
 			return nil, err
 		}
+	case yaml.DocumentNode, yaml.ScalarNode, yaml.AliasNode:
+		// Or handle other kinds if necessary, otherwise this case might not be needed
+		// if only MappingNode and SequenceNode are valid inputs for !Join
+		return nil, errors.Errorf("!Join expects a Mapping or Sequence node, got %v", node.Kind)
 	}
 
 	var items []string

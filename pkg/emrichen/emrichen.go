@@ -1,8 +1,8 @@
 package emrichen
 
 import (
-	"crypto/md5"
-	"crypto/sha1"
+	"crypto/md5"  // #nosec G501
+	"crypto/sha1" // #nosec G505
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/hex"
@@ -176,7 +176,7 @@ var defaultHandlers = TagFuncMap{
 		if node.Kind != yaml.ScalarNode {
 			return nil, errors.New("!MD5 requires a scalar value")
 		}
-		hash := md5.Sum([]byte(node.Value))
+		hash := md5.Sum([]byte(node.Value)) // #nosec G401
 		return makeString(hex.EncodeToString(hash[:])), nil
 	},
 	"!Merge": func(ei *Interpreter, node *yaml.Node) (*yaml.Node, error) {
@@ -192,7 +192,7 @@ var defaultHandlers = TagFuncMap{
 		if node.Kind != yaml.ScalarNode {
 			return nil, errors.New("!SHA1 requires a scalar value")
 		}
-		hash := sha1.Sum([]byte(node.Value))
+		hash := sha1.Sum([]byte(node.Value)) // #nosec G401
 		return makeString(hex.EncodeToString(hash[:])), nil
 	},
 	"!SHA256": func(ei *Interpreter, node *yaml.Node) (*yaml.Node, error) {
