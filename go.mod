@@ -4,7 +4,7 @@ go 1.24.2
 
 require (
 	github.com/Masterminds/sprig v2.22.0+incompatible
-	github.com/go-go-golems/glazed v0.5.44
+	github.com/go-go-golems/glazed v0.5.46
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/cobra v1.9.1
 	github.com/stretchr/testify v1.10.0
