@@ -1,7 +1,7 @@
 version: 2
 updates:
   - package-ecosystem: "gomod"
-    directory: "/" # Adjust if your go.mod is not in the root
+    directory: "/"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
@@ -11,7 +11,7 @@ updates:
     ignore:
       - dependency-name: "*"
         update-types: ["version-update:semver-patch"]
-
+  
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
@@ -19,4 +19,4 @@ updates:
     open-pull-requests-limit: 10
     labels:
       - "dependencies"
-      - "security"
+      - "security" 
