@@ -4,6 +4,7 @@ import (
 	"math"
 	"reflect"
 	"strconv"
+	"time"
 
 	"github.com/pkg/errors"
 
@@ -160,6 +161,11 @@ func NodeToMap(node *yaml.Node) (map[string]interface{}, bool) {
 func ValueToNode(value interface{}) (*yaml.Node, error) {
 	if value == nil {
 		return makeNil(), nil
+	}
+
+	// Handle time.Time specifically before reflection
+	if t, ok := value.(time.Time); ok {
+		return makeString(t.Format(time.RFC3339)), nil
 	}
 
 	// Use reflection to handle dynamic types

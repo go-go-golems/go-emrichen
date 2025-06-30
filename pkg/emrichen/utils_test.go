@@ -9,6 +9,7 @@ import (
 	"gopkg.in/yaml.v3"
 	"io"
 	"testing"
+	"time"
 )
 
 type testCase struct {
@@ -113,4 +114,38 @@ func expectPanic(t *testing.T, f func() (*yaml.Node, error)) (*yaml.Node, error)
 	}
 
 	return nil, errors.New("paniced")
+}
+
+func TestValueToNode_TimeSupport(t *testing.T) {
+	// Test time.Time conversion
+	testTime := time.Date(2023, 12, 25, 15, 30, 45, 0, time.UTC)
+	
+	node, err := ValueToNode(testTime)
+	require.NoError(t, err)
+	
+	assert.Equal(t, yaml.ScalarNode, node.Kind)
+	assert.Equal(t, "!!str", node.Tag)
+	assert.Equal(t, "2023-12-25T15:30:45Z", node.Value)
+}
+
+func TestValueToNode_TimeInVar(t *testing.T) {
+	// Test time.Time in !Var context
+	testTime := time.Date(2024, 1, 1, 12, 0, 0, 0, time.UTC)
+	
+	tests := []testCase{
+		{
+			name: "time in var",
+			inputYAML: `
+timestamp: !Var myTime
+`,
+			initVars: map[string]interface{}{
+				"myTime": testTime,
+			},
+			expected: `
+timestamp: "2024-01-01T12:00:00Z"
+`,
+		},
+	}
+	
+	runTests(t, tests)
 }
