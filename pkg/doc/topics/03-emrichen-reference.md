@@ -995,3 +995,129 @@ result: !With
 #   message: "Overridden, Local Scope!"
 #   original: "Hello"
 ```
+
+---
+
+## Programmatic Usage (Go API)
+
+Beyond the command-line tool, you can use `go-emrichen` as a library within your Go applications to process YAML dynamically.
+
+### 1. Creating an Interpreter
+
+First, create an `Interpreter` instance. You can pass options to configure it, such as providing initial variables or custom Go template functions.
+
+```go
+import (
+	"github.com/go-go-golems/go-emrichen/pkg/emrichen"
+	"github.com/Masterminds/sprig"
+	"text/template"
+)
+
+// Initial variables
+initialVars := map[string]interface{}{
+	"appName": "MyGoApp",
+	"version": "2.1",
+}
+
+// Custom Go template functions
+customFuncs := template.FuncMap{
+	"upper": strings.ToUpper,
+}
+
+// Create interpreter with variables and Sprig + custom functions
+ei, err := emrichen.NewInterpreter(
+	emrichen.WithVars(initialVars),
+	emrichen.WithFuncMap(sprig.TxtFuncMap()), // Include Sprig functions
+	emrichen.WithFuncMap(customFuncs),
+)
+if err != nil {
+	// Handle error
+}
+```
+
+### 2. Processing YAML
+
+To process YAML, you typically use the `Interpreter` with Go's standard `yaml.v3` decoder. The `CreateDecoder` method provides a helper that wraps your target Go struct or interface, processing Emrichen tags during unmarshalling.
+
+```go
+import (
+	"gopkg.in/yaml.v3"
+	"io"
+	"os"
+)
+
+// Assuming 'inputFile' is an io.Reader (e.g., os.File)
+inputFile, err := os.Open("config.yaml")
+if err != nil { /* ... */ }
+defer inputFile.Close()
+
+decoder := yaml.NewDecoder(inputFile)
+
+var resultData map[string]interface{} // Or your specific struct type
+
+// Process the first YAML document in the file
+err = decoder.Decode(ei.CreateDecoder(&resultData))
+if err != nil && err != io.EOF {
+    // Handle decoding/processing error
+}
+
+// resultData now contains the processed YAML content
+fmt.Printf("%+v\n", resultData)
+```
+
+To process multi-document YAML files, loop using the decoder:
+
+```go
+for {
+	var document interface{}
+	err = decoder.Decode(ei.CreateDecoder(&document))
+	if err == io.EOF {
+		break
+	}
+	if err != nil {
+		// Handle error
+		break
+	}
+	if document == nil { // Skip documents that evaluate to nil (e.g., !Defaults only)
+		continue
+	}
+	// Process the 'document'
+}
+```
+
+### 3. Registering Custom Tags
+
+You can extend Emrichen by registering your own tags.
+
+```go
+import (
+	"gopkg.in/yaml.v3"
+	"github.com/pkg/errors"
+)
+
+// Define the tag function
+func handleMyCustomTag(ei *emrichen.Interpreter, node *yaml.Node) (*yaml.Node, error) {
+	if node.Kind != yaml.ScalarNode {
+		return nil, errors.New("!MyCustomTag requires a scalar value")
+	}
+	// Process the node value... for example, reverse it
+	originalValue := node.Value
+	reversedValue := ""
+	for _, r := range originalValue {
+		reversedValue = string(r) + reversedValue
+	}
+	// Return a new node with the result
+	return emrichen.ValueToNode(reversedValue) // Helper to create a new node
+}
+
+// Create interpreter and register the tag
+tagMap := emrichen.TagFuncMap{
+	"!MyCustomTag": handleMyCustomTag,
+}
+ei, err = emrichen.NewInterpreter(emrichen.WithAdditionalTags(tagMap))
+if err != nil { /* ... */ }
+
+// Now you can process YAML containing !MyCustomTag
+```
+
+This provides a flexible way to integrate Emrichen processing directly into your Go applications.
