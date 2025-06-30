@@ -1,11 +1,16 @@
 package emrichen
 
 import (
+	"encoding"
+	"fmt"
 	"math"
+	"net"
+	"net/url"
 	"reflect"
 	"strconv"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/pkg/errors"
 
 	"gopkg.in/yaml.v3"
@@ -163,13 +168,65 @@ func ValueToNode(value interface{}) (*yaml.Node, error) {
 		return makeNil(), nil
 	}
 
-	// Handle time.Time specifically before reflection
+	// Handle specific types before reflection
+
+	// Handle time.Time
 	if t, ok := value.(time.Time); ok {
 		return makeString(t.Format(time.RFC3339)), nil
 	}
 
+	// Handle time.Duration
+	if d, ok := value.(time.Duration); ok {
+		return makeString(d.String()), nil
+	}
+
+	// Handle net.IP
+	if ip, ok := value.(net.IP); ok {
+		return makeString(ip.String()), nil
+	}
+
+	// Handle url.URL
+	if u, ok := value.(url.URL); ok {
+		return makeString(u.String()), nil
+	}
+	if u, ok := value.(*url.URL); ok {
+		if u == nil {
+			return makeNil(), nil
+		}
+		return makeString(u.String()), nil
+	}
+
+	// Handle uuid.UUID
+	if u, ok := value.(uuid.UUID); ok {
+		return makeString(u.String()), nil
+	}
+
+	// Handle encoding.TextMarshaler interface
+	if tm, ok := value.(encoding.TextMarshaler); ok {
+		text, err := tm.MarshalText()
+		if err != nil {
+			return nil, errors.Errorf("failed to marshal text: %v", err)
+		}
+		return makeString(string(text)), nil
+	}
+
+	// Handle fmt.Stringer interface (after TextMarshaler to prefer the more specific interface)
+	if s, ok := value.(fmt.Stringer); ok {
+		return makeString(s.String()), nil
+	}
+
 	// Use reflection to handle dynamic types
 	v := reflect.ValueOf(value)
+
+	// Handle pointers
+	if v.Kind() == reflect.Ptr {
+		if v.IsNil() {
+			return makeNil(), nil
+		}
+		// Recursively handle the dereferenced value
+		return ValueToNode(v.Elem().Interface())
+	}
+
 	//exhaustive:ignore
 	switch v.Kind() {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
