@@ -2,6 +2,8 @@ module github.com/go-go-golems/go-emrichen
 
 go 1.24.2
 
+toolchain go1.24.4
+
 require (
 	github.com/Masterminds/sprig v2.22.0+incompatible
 	github.com/go-go-golems/glazed v0.5.52
