@@ -66,3 +66,11 @@ emrichen_BINARY=$(shell which emrichen)
 install:
 	go build -o ./dist/emrichen ./cmd/emrichen && \
 		cp ./dist/emrichen $(emrichen_BINARY)
+
+.PHONY: logcopter-generate
+logcopter-generate:
+	GOWORK=off go tool logcopter-gen -include-main -var zlog -area-prefix go-go-golems.go-emrichen -strip-prefix github.com/go-go-golems/go-emrichen ./cmd/... ./pkg/...
+
+.PHONY: logcopter-check
+logcopter-check:
+	GOWORK=off go tool logcopter-gen -include-main -var zlog -area-prefix go-go-golems.go-emrichen -strip-prefix github.com/go-go-golems/go-emrichen -check ./cmd/... ./pkg/...
