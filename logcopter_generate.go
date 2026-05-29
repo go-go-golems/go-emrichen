@@ -1,0 +1,3 @@
+package go_emrichen
+
+//go:generate go tool logcopter-gen -include-main -var zlog -area-prefix go-go-golems.go-emrichen -strip-prefix github.com/go-go-golems/go-emrichen ./cmd/... ./pkg/...

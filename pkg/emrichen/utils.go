@@ -219,7 +219,7 @@ func ValueToNode(value interface{}) (*yaml.Node, error) {
 	v := reflect.ValueOf(value)
 
 	// Handle pointers
-	if v.Kind() == reflect.Ptr {
+	if v.Kind() == reflect.Pointer {
 		if v.IsNil() {
 			return makeNil(), nil
 		}
