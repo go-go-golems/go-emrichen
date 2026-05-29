@@ -1,6 +1,6 @@
 module github.com/go-go-golems/go-emrichen
 
-go 1.25.0
+go 1.26.3
 
 require (
 	github.com/Masterminds/sprig v2.22.0+incompatible
